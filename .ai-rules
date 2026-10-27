@@ -1,0 +1,15 @@
+# AI AGENT BEHAVIOR RULES FOR HYBRID HARDWARE-SOFTWARE PROJECT
+
+## 1. CONTEXT MINIMIZATION (TIẾT KIỆM TOKEN)
+- KHÔNG giải thích lại các lý thuyết cơ bản về mạch hoặc code trừ khi được yêu cầu.
+- KHÔNG tự tiện đọc toàn bộ mã nguồn nếu nhiệm vụ chỉ liên quan đến một module.
+- Khi trả lời, chỉ xuất ra phần code/cấu hình thay đổi, KHÔNG viết lại toàn bộ file nếu không cần thiết.
+- Luôn ưu tiên tham chiếu đến `HARDWARE_MAP.md` và `SOFTWARE_ARCH.md` để lấy thông tin thay vì bắt người dùng giải thích lại bối cảnh.
+
+## 2. HARDWARE & SOFTWARE SEPARATION
+- Mọi cấu hình chân (Pinout), giao tiếp (I2C, SPI, UART), và linh kiện PHẢI được đồng bộ vào file `HARDWARE_MAP.md`.
+- Mọi kiến trúc code, thư viện sử dụng, và luồng dữ liệu PHẢI được ghi nhận tại `SOFTWARE_ARCH.md`.
+- Nếu có sự thay đổi về phần cứng ảnh hưởng đến code (hoặc ngược lại), AI phải yêu cầu cập nhật file Markdown tương ứng TRƯỚC khi viết code mới.
+
+## 3. CHAT THREAD PROTOCOL
+- Khi người dùng mở Chat Thread mới, hãy đọc file `.ai-rules`, `HARDWARE_MAP.md`, và `SOFTWARE_ARCH.md` để lấy ngữ cảnh. Tuyệt đối không yêu cầu người dùng kể lại lịch sử của thread cũ.

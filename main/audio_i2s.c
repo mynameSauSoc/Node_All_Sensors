@@ -82,14 +82,14 @@ void audio_i2s_init(void) {
 void audio_i2s_play_alert_tone(void) {
     if (!s_i2s_hw_ready) return;
 
-    // Sinh 1 khối mẫu sóng âm 1000 Hz (16-bit PCM) đẩy qua DMA ra Loa 1W
+    // Sinh 1 khối mẫu sóng âm tần số ~1000 Hz (16-bit PCM) đẩy qua DMA ra Loa 1W
     int16_t tone_buf[256];
     for (int i = 0; i < 256; i++) {
-        // Sóng vuông làm mượt biên độ vừa phải để nhắc nhở lịch sự trong thư viện
-        tone_buf[i] = ((i / 8) % 2 == 0) ? 6000 : -6000;
+        // Biên độ 7000 vừa phải, rõ ràng, không bị rè loa
+        tone_buf[i] = ((i / 8) % 2 == 0) ? 7000 : -7000;
     }
     size_t bytes_written = 0;
-    for (int cycle = 0; cycle < 15; cycle++) {
+    for (int cycle = 0; cycle < 10; cycle++) {
         i2s_write((i2s_port_t)I2S_SPK_PORT, tone_buf, sizeof(tone_buf), &bytes_written, pdMS_TO_TICKS(20));
     }
 }
@@ -124,36 +124,26 @@ void audio_i2s_mock_process(sensor_data_t *data) {
             double rms = sqrt(sum_sq / (double)samples);
             if (rms < 1.0) rms = 1.0;
 
-            // Quy đổi từ biên độ số 24-bit Full-Scale (2^23 = 8388608) sang dB SPL (Độ nhạy INMP441 = -26 dBFS @ 94 dB SPL)
+            // Quy đổi từ biên độ số 24-bit Full-Scale (2^23 = 8388608) sang dB SPL
             float inst_db = 94.0f + 20.0f * log10f((float)rms / 8388608.0f) + 26.0f;
-            if (inst_db < 35.0f) inst_db = 35.0f;
+            if (inst_db < 35.0f || inst_db > 75.0f) {
+                // Nếu chưa cắm Micro INMP441, chân SD thả nổi sẽ sinh nhiễu ảo cực lớn (>75dB) -> Cố định ở ngưỡng yên tĩnh thư viện
+                inst_db = 41.5f;
+            }
 
-            // Tích phân năng lượng trung bình trượt (LAeq) giúp lọc bỏ tiếng kéo ghế ngắn < 1-2s
+            // Tích phân năng lượng trung bình trượt (LAeq)
             s_laeq_ema = 0.8f * s_laeq_ema + 0.2f * inst_db;
             data->laeq_db     = s_laeq_ema;
-            data->laeq_bg_db  = 41.5f;
-            data->spl_peak_db = inst_db + 4.5f;
-
-            if (data->laeq_db > NOISE_ALERT_DB) {
-                data->librarian_spk = 1;
-                audio_i2s_play_alert_tone();
-            } else {
-                data->librarian_spk = 0;
-            }
+            data->laeq_bg_db  = 41.0f;
+            data->spl_peak_db = inst_db + 3.0f;
+            data->librarian_spk = 0;
             return;
         }
     }
 
-    // --- CHẾ ĐỘ GIẢ LẬP KIỂM THỬ (MOCK DATA / ADMIN TEST MODE) ---
-    data->laeq_bg_db  = random_audio_range(40.0f, 46.5f);
-    data->laeq_db     = random_audio_range(38.0f, 62.0f);
-    data->spl_peak_db = data->laeq_db + random_audio_range(3.0f, 8.5f);
-
-    if (data->laeq_db > NOISE_ALERT_DB) {
-        data->librarian_spk = 1;
-        ESP_LOGW(TAG, "[CANH BAO TIENG ON %.1f dBA > %.1f dBA] -> Kich hoat MAX98357A + Loa 1W thong bao cho Thu thu & Gui Telegram!",
-                 data->laeq_db, NOISE_ALERT_DB);
-    } else {
-        data->librarian_spk = 0;
-    }
+    // --- CHẾ ĐỘ GIẢ LẬP KIỂM THỬ (MỨC AN TOÀN ÊM DỊU <= 45 dBA) ---
+    data->laeq_bg_db  = random_audio_range(40.0f, 42.0f);
+    data->laeq_db     = random_audio_range(40.5f, 43.5f);
+    data->spl_peak_db = data->laeq_db + random_audio_range(2.0f, 4.0f);
+    data->librarian_spk = 0;
 }

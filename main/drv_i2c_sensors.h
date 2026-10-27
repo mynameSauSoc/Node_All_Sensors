@@ -15,6 +15,9 @@
 // Khởi tạo ngoại vi I2C Master của ESP32-S3 và cấu hình ban đầu cho các cảm biến + màn hình OLED
 esp_err_t drv_i2c_bus_init(void);
 
+// Quét toàn bộ 127 địa chỉ I2C trên bus và in nhật ký thiết bị đang phản hồi ACK
+void drv_i2c_scan_bus(void);
+
 // Kiểm tra nhanh (Probe ACK) xem một thiết bị I2C (0x23, 0x44, 0x62, 0x3C) đang được CẮM hay đã RÚT RA
 bool drv_i2c_probe_device(uint8_t addr_7bit);
 

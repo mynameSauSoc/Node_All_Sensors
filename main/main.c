@@ -132,20 +132,38 @@ static void mqtt_handler(void *args, esp_event_base_t base, int32_t id, void *ev
     }
 }
 
+static int s_retry_num = 0;
+
 static void wifi_handler(void* arg, esp_event_base_t base, int32_t id, void* data) {
     if (base == WIFI_EVENT && id == WIFI_EVENT_STA_START) {
         esp_wifi_connect();
+    } else if (base == WIFI_EVENT && id == WIFI_EVENT_AP_START) {
+        ESP_LOGI(TAG, "Diem truy cap Wi-Fi AP da san sang! Khoi dong Web Portal cai dat...");
+        ota_remote_start_ap_web_portal();
     } else if (base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) {
         s_is_connected = false;
-        ESP_LOGW(TAG, "Mat song Wi-Fi -> Dang thu ket noi lai & luu du lieu vao Flash 1MB...");
-        esp_wifi_connect();
+        if (s_retry_num < 3) {
+            s_retry_num++;
+            ESP_LOGW(TAG, "Wi-Fi dang thu ket noi lai (lan %d/3)...", s_retry_num);
+            esp_wifi_connect();
+        } else {
+            ESP_LOGW(TAG, "Tam dung thu Wi-Fi STA -> Node tiep tuc doc cam bien & duy tri AP TQB_NODE_SETUP!");
+        }
     } else if (base == IP_EVENT && id == IP_EVENT_STA_GOT_IP) {
+        s_retry_num = 0;
         ESP_LOGI(TAG, "Da ket noi Wi-Fi thanh cong!");
-        esp_mqtt_client_start(s_mqtt_client);
+        if (s_mqtt_client != NULL) {
+            esp_mqtt_client_start(s_mqtt_client);
+        }
     }
 }
 
 void app_main(void) {
+    esp_reset_reason_t rst_reason = esp_reset_reason();
+    ESP_LOGI(TAG, "*****************************************************");
+    ESP_LOGI(TAG, "  ESP32-S3 BOOT - MA LY DO RESET: %d", (int)rst_reason);
+    ESP_LOGI(TAG, "*****************************************************");
+
     // 1. Khởi tạo NVS Flash (xử lý tự động nếu phân vùng NVS bị đầy)
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -157,8 +175,10 @@ void app_main(void) {
     // 2. Khởi tạo toàn bộ hệ thống Driver phần cứng trên ESP32-S3
     led_alert_init();         // Driver 3 đèn LED đơn sắc riêng biệt (GPIO 1, 2, 42)
     drv_i2c_bus_init();       // Driver Bus I2C (BH1750, SHT30, SCD40, Màn hình OLED SSD1306)
+    drv_i2c_scan_bus();       // Quét toàn bộ 127 địa chỉ I2C thực tế trên mạch testboard
     drv_adc_sensors_init();   // Driver ADC1 & Xung 280us (Bụi Sharp GP2Y10, SO2, NO2, VOCs, Pin UPS)
     audio_i2s_init();         // Driver Bus I2S DMA (Micro INMP441 + Mạch giải mã MAX98357A + Loa 1W)
+    audio_i2s_play_alert_tone(); // Kêu 1 tiếng BÍP kiểm tra loa khi khởi động
     offline_storage_init();   // Driver Bộ nhớ Flash Offline 1MB SPIFFS
 
     // 3. Khởi tạo Module Quản lý Từ xa qua Wi-Fi (Đọc cấu hình NVS & Quét tự động I2C Plug-and-Play)
@@ -168,7 +188,16 @@ void app_main(void) {
     // 4. Tạo hàng đợi Queue trên RAM
     s_sensor_queue = xQueueCreate(20, sizeof(sensor_data_t));
 
-    // 5. Khởi tạo kết nối Wi-Fi chế độ Kép (AP + STA):
+    // 5. Khởi tạo MQTT Client theo URI lưu trong NVS Flash (Sẵn sàng trước khi Wi-Fi có IP)
+    esp_mqtt_client_config_t mqtt_cfg = { .uri = cfg->mqtt_uri };
+    s_mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
+    esp_mqtt_client_register_event(s_mqtt_client, ESP_EVENT_ANY_ID, mqtt_handler, NULL);
+
+    // 6. Khởi chạy các tiến trình FreeRTOS
+    xTaskCreate(sensor_task, "sensor_task", 4096, NULL, 5, NULL);
+    xTaskCreate(publisher_task, "publisher_task", 6144, NULL, 5, NULL);
+
+    // 7. Khởi tạo kết nối Wi-Fi chế độ Kép (AP + STA):
     //    - STA: Tự động kết nối vào Wi-Fi lưu trong NVS (ở nhà hoặc ở trường).
     //    - AP ("TQB_NODE_SETUP"): Luôn phát sẵn điểm truy cập cài đặt tại http://192.168.4.1
     //      để khi mang mạch sang nơi có Wi-Fi mới, chỉ cần lấy điện thoại bắt "TQB_NODE_SETUP"
@@ -202,16 +231,4 @@ void app_main(void) {
     esp_wifi_set_config(WIFI_IF_STA, &wifi_cfg);
     esp_wifi_set_config(WIFI_IF_AP, &ap_cfg);
     esp_wifi_start();
-
-    // Bật Cổng Web Cài đặt Nhanh tại http://192.168.4.1 (và trên cả IP LAN của Node)
-    ota_remote_start_ap_web_portal();
-
-    // 6. Khởi tạo MQTT Client theo URI lưu trong NVS Flash
-    esp_mqtt_client_config_t mqtt_cfg = { .uri = cfg->mqtt_uri };
-    s_mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
-    esp_mqtt_client_register_event(s_mqtt_client, ESP_EVENT_ANY_ID, mqtt_handler, NULL);
-
-    // 7. Khởi chạy các tiến trình FreeRTOS
-    xTaskCreate(sensor_task, "sensor_task", 4096, NULL, 5, NULL);
-    xTaskCreate(publisher_task, "publisher_task", 6144, NULL, 5, NULL);
 }

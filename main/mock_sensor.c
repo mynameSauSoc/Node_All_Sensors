@@ -72,25 +72,25 @@ bool mock_sensor_update_multirate(sensor_data_t *data, uint32_t tick_sec) {
     }
 
     // -------------------------------------------------------------------------
-    // 2. NHÓM ĐO MỖI 5 GIÂY: Cảm biến ánh sáng BH1750 (I2C 0x23) & Cập nhật màn hình OLED
+    // 2. NHÓM ĐO MỖI 5 GIÂY: Cảm biến ánh sáng BH1750 (I2C 0x23)
     // -------------------------------------------------------------------------
     if (tick_sec % LUX_SAMPLE_PERIOD_SEC == 0) {
         if (mask & SENSOR_MASK_BH1750) {
             if (!is_mock) {
                 if (drv_bh1750_read_lux(&data->lux) != ESP_OK) {
-                    data->lux = random_range(360.0f, 520.0f);
+                    data->lux = 0.0f; // Chưa cắm hoặc lỗi -> Về 0
                 }
             } else {
-                data->lux = random_range(360.0f, 520.0f);
+                data->lux = 0.0f;
             }
         } else {
             data->lux = 0.0f;
         }
+    }
 
-        // Nếu Node có cắm màn hình OLED (VD: Node 2 Cột) -> Cập nhật thông số lên màn hình
-        if (mask & SENSOR_MASK_OLED) {
-            drv_oled_ssd1306_update(data);
-        }
+    // Luôn cập nhật màn hình OLED mỗi chu kỳ (nếu màn hình có mặt trên bus)
+    if (mask & SENSOR_MASK_OLED) {
+        drv_oled_ssd1306_update(data);
     }
 
     // -------------------------------------------------------------------------
@@ -101,37 +101,40 @@ bool mock_sensor_update_multirate(sensor_data_t *data, uint32_t tick_sec) {
         if (mask & SENSOR_MASK_SCD40) {
             if (!is_mock) {
                 if (drv_scd40_read_measurement(&data->co2_ppm, &data->temp, &data->rh) != ESP_OK) {
-                    data->co2_ppm = (uint16_t)random_range(480.0f, 1040.0f);
+                    data->co2_ppm = 0;
                 }
             } else {
-                data->co2_ppm = (uint16_t)random_range(480.0f, 1040.0f);
+                data->co2_ppm = 0;
             }
         } else {
-            data->co2_ppm = 400;
+            data->co2_ppm = 0;
         }
 
         // --- Cảm biến Nhiệt/Ẩm SHT30 (Node 3 Kệ sách) ---
-        if ((mask & SENSOR_MASK_SHT30) || (mask & SENSOR_MASK_SCD40)) {
-            if (!is_mock && (mask & SENSOR_MASK_SHT30)) {
+        if (mask & SENSOR_MASK_SHT30) {
+            if (!is_mock) {
                 if (drv_sht30_read_temp_rh(&data->temp, &data->rh) != ESP_OK) {
-                    data->temp = random_range(24.2f, 26.4f);
-                    data->rh   = random_range(52.0f, 67.5f);
+                    data->temp = 0.0f;
+                    data->rh   = 0.0f;
                 }
                 drv_sht30_set_heater(data->rh > 90.0f);
-            } else if (is_mock) {
-                data->temp = random_range(24.2f, 26.4f);
-                data->rh   = random_range(52.0f, 67.5f);
+            } else {
+                data->temp = 0.0f;
+                data->rh   = 0.0f;
             }
+        } else if (!(mask & SENSOR_MASK_SCD40)) {
+            data->temp = 0.0f;
+            data->rh   = 0.0f;
         }
 
-        // --- Cụm cảm biến Khí độc SO2 / NO2 / VOCs (Node 3 Kệ sách quý hiếm) ---
+        // --- Cụm cảm biến Khí độc SO2 / NO2 / VOCs ---
         if (mask & SENSOR_MASK_GAS) {
             if (!is_mock) {
                 drv_gas_sensors_read(&data->so2_ppb, &data->no2_ppb, &data->voc_ppb);
             } else {
-                data->so2_ppb = random_range(1.5f, 11.2f);
-                data->no2_ppb = random_range(2.0f, 11.5f);
-                data->voc_ppb = random_range(75.0f, 325.0f);
+                data->so2_ppb = 0.0f;
+                data->no2_ppb = 0.0f;
+                data->voc_ppb = 0.0f;
             }
         } else {
             data->so2_ppb = 0.0f;

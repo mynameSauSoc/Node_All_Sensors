@@ -20,6 +20,147 @@
 static const char *TAG = "DRV_I2C";
 static bool s_i2c_initialized = false;
 static bool s_oled_ready      = false;
+static uint8_t s_oled_addr    = 0x3C;
+
+// Bảng mã ký tự ASCII 5x7 chuẩn (từ mã 32 đến 90) cho màn hình OLED 128x64
+static const uint8_t font5x7[][5] = {
+    {0x00, 0x00, 0x00, 0x00, 0x00}, // 32 ' '
+    {0x00, 0x00, 0x5F, 0x00, 0x00}, // 33 '!'
+    {0x00, 0x07, 0x00, 0x07, 0x00}, // 34 '"'
+    {0x14, 0x7F, 0x14, 0x7F, 0x14}, // 35 '#'
+    {0x24, 0x2A, 0x7F, 0x2A, 0x12}, // 36 '$'
+    {0x23, 0x13, 0x08, 0x64, 0x62}, // 37 '%'
+    {0x36, 0x49, 0x55, 0x22, 0x50}, // 38 '&'
+    {0x00, 0x05, 0x03, 0x00, 0x00}, // 39 '''
+    {0x00, 0x1C, 0x22, 0x41, 0x00}, // 40 '('
+    {0x00, 0x41, 0x22, 0x1C, 0x00}, // 41 ')'
+    {0x14, 0x08, 0x3E, 0x08, 0x14}, // 42 '*'
+    {0x08, 0x08, 0x3E, 0x08, 0x08}, // 43 '+'
+    {0x00, 0x50, 0x30, 0x00, 0x00}, // 44 ','
+    {0x08, 0x08, 0x08, 0x08, 0x08}, // 45 '-'
+    {0x00, 0x60, 0x60, 0x00, 0x00}, // 46 '.'
+    {0x20, 0x10, 0x08, 0x04, 0x02}, // 47 '/'
+    {0x3E, 0x51, 0x49, 0x45, 0x3E}, // 48 '0'
+    {0x00, 0x42, 0x7F, 0x40, 0x00}, // 49 '1'
+    {0x42, 0x61, 0x51, 0x49, 0x46}, // 50 '2'
+    {0x21, 0x41, 0x45, 0x4B, 0x31}, // 51 '3'
+    {0x18, 0x14, 0x12, 0x7F, 0x10}, // 52 '4'
+    {0x27, 0x45, 0x45, 0x45, 0x39}, // 53 '5'
+    {0x3C, 0x4A, 0x49, 0x49, 0x30}, // 54 '6'
+    {0x01, 0x71, 0x09, 0x05, 0x03}, // 55 '7'
+    {0x36, 0x49, 0x49, 0x49, 0x36}, // 56 '8'
+    {0x06, 0x49, 0x49, 0x29, 0x1E}, // 57 '9'
+    {0x00, 0x36, 0x36, 0x00, 0x00}, // 58 ':'
+    {0x00, 0x56, 0x36, 0x00, 0x00}, // 59 ';'
+    {0x08, 0x14, 0x22, 0x41, 0x00}, // 60 '<'
+    {0x14, 0x14, 0x14, 0x14, 0x14}, // 61 '='
+    {0x00, 0x41, 0x22, 0x14, 0x08}, // 62 '>'
+    {0x02, 0x01, 0x51, 0x09, 0x06}, // 63 '?'
+    {0x32, 0x49, 0x79, 0x41, 0x3E}, // 64 '@'
+    {0x7E, 0x11, 0x11, 0x11, 0x7E}, // 65 'A'
+    {0x7F, 0x49, 0x49, 0x49, 0x36}, // 66 'B'
+    {0x3E, 0x41, 0x41, 0x41, 0x22}, // 67 'C'
+    {0x7F, 0x41, 0x41, 0x22, 0x1C}, // 68 'D'
+    {0x7F, 0x49, 0x49, 0x49, 0x41}, // 69 'E'
+    {0x7F, 0x09, 0x09, 0x09, 0x01}, // 70 'F'
+    {0x3E, 0x41, 0x49, 0x49, 0x7A}, // 71 'G'
+    {0x7F, 0x08, 0x08, 0x08, 0x7F}, // 72 'H'
+    {0x00, 0x41, 0x7F, 0x41, 0x00}, // 73 'I'
+    {0x20, 0x40, 0x41, 0x3F, 0x01}, // 74 'J'
+    {0x7F, 0x08, 0x14, 0x22, 0x41}, // 75 'K'
+    {0x7F, 0x40, 0x40, 0x40, 0x40}, // 76 'L'
+    {0x7F, 0x02, 0x0C, 0x02, 0x7F}, // 77 'M'
+    {0x7F, 0x04, 0x08, 0x10, 0x7F}, // 78 'N'
+    {0x3E, 0x41, 0x41, 0x41, 0x3E}, // 79 'O'
+    {0x7F, 0x09, 0x09, 0x09, 0x06}, // 80 'P'
+    {0x3E, 0x41, 0x51, 0x21, 0x5E}, // 81 'Q'
+    {0x7F, 0x09, 0x19, 0x29, 0x46}, // 82 'R'
+    {0x46, 0x49, 0x49, 0x49, 0x31}, // 83 'S'
+    {0x01, 0x01, 0x7F, 0x01, 0x01}, // 84 'T'
+    {0x3F, 0x40, 0x40, 0x40, 0x3F}, // 85 'U'
+    {0x1F, 0x20, 0x40, 0x20, 0x1F}, // 86 'V'
+    {0x3F, 0x40, 0x38, 0x40, 0x3F}, // 87 'W'
+    {0x63, 0x14, 0x08, 0x14, 0x63}, // 88 'X'
+    {0x07, 0x08, 0x70, 0x08, 0x07}, // 89 'Y'
+    {0x61, 0x51, 0x49, 0x45, 0x43}, // 90 'Z'
+};
+
+static uint8_t s_oled_pages[8][128];
+
+static void oled_clear(void) {
+    memset(s_oled_pages, 0x00, sizeof(s_oled_pages));
+}
+
+static void oled_draw_string(int x, int page, const char *str) {
+    if (page < 0 || page >= 8) return;
+    int cur_x = x;
+    while (*str && cur_x < 122) {
+        char c = *str++;
+        if (c >= 'a' && c <= 'z') c = c - 'a' + 'A';
+        if (c >= 32 && c <= 90) {
+            int idx = c - 32;
+            for (int col = 0; col < 5; col++) {
+                if (cur_x + col < 128) {
+                    s_oled_pages[page][cur_x + col] = font5x7[idx][col];
+                }
+            }
+            if (cur_x + 5 < 128) s_oled_pages[page][cur_x + 5] = 0x00;
+            cur_x += 6;
+        } else {
+            cur_x += 6;
+        }
+    }
+}
+
+static void oled_flush(void) {
+    if (!s_oled_ready) return;
+    for (uint8_t p = 0; p < 8; p++) {
+        uint8_t set_page_cmds[] = {
+            0x00,
+            (uint8_t)(0xB0 | p),
+            0x00,
+            0x10
+        };
+        i2c_master_write_to_device(I2C_MASTER_NUM, s_oled_addr, set_page_cmds, sizeof(set_page_cmds), pdMS_TO_TICKS(20));
+
+        uint8_t data_chunk[129];
+        data_chunk[0] = 0x40;
+        memcpy(&data_chunk[1], s_oled_pages[p], 128);
+        i2c_master_write_to_device(I2C_MASTER_NUM, s_oled_addr, data_chunk, sizeof(data_chunk), pdMS_TO_TICKS(50));
+    }
+}
+
+static void oled_init_hardware(uint8_t addr) {
+    s_oled_addr = addr;
+    static const uint8_t init_cmds[] = {
+        0x00,
+        0xAE,
+        0xD5, 0x80,
+        0xA8, 0x3F,
+        0xD3, 0x00,
+        0x40,
+        0x8D, 0x14,
+        0x20, 0x02,
+        0xA1,
+        0xC8,
+        0xDA, 0x12,
+        0x81, 0xCF,
+        0xD9, 0xF1,
+        0xDB, 0x40,
+        0xA4,
+        0xA6,
+        0xAF
+    };
+    i2c_master_write_to_device(I2C_MASTER_NUM, s_oled_addr, init_cmds, sizeof(init_cmds), pdMS_TO_TICKS(50));
+    s_oled_ready = true;
+    oled_clear();
+    oled_draw_string(14, 0, "TQB SMARTLIB");
+    oled_draw_string(4, 2, "HE THONG AIOT P411");
+    oled_draw_string(4, 4, "STATUS: KHOI DONG");
+    oled_draw_string(4, 6, "I2C SCANNING...");
+    oled_flush();
+    ESP_LOGI(TAG, "⚡ Da khoi tao Man hinh OLED SSD1306 tai dia chi 0x%02X thanh cong!", s_oled_addr);
+}
 
 // =============================================================================
 // HÀM NỘI BỘ: TÍNH MÃ KIỂM TRA LỖI CRC-8 (ĐA THỨC 0x31 CHO SHT30 & SCD40)
@@ -75,21 +216,37 @@ esp_err_t drv_i2c_bus_init(void) {
     uint8_t scd40_start_cmd[2] = {0x21, 0xB1};
     i2c_master_write_to_device(I2C_MASTER_NUM, I2C_ADDR_SCD40, scd40_start_cmd, 2, pdMS_TO_TICKS(50));
 
-    // Khởi tạo màn hình OLED SSD1306 (0x3C) nếu được cắm trên bus
-    uint8_t oled_init_cmds[] = {
-        0x00,       // Control byte: Command stream
-        0xAE,       // Display OFF
-        0x20, 0x00, // Memory Addressing Mode: Horizontal
-        0x8D, 0x14, // Enable Charge Pump
-        0xAF        // Display ON
-    };
-    if (i2c_master_write_to_device(I2C_MASTER_NUM, I2C_ADDR_OLED_SSD1306,
-                                   oled_init_cmds, sizeof(oled_init_cmds), pdMS_TO_TICKS(50)) == ESP_OK) {
-        s_oled_ready = true;
-        ESP_LOGI(TAG, "Da ket noi Man hinh OLED SSD1306 (0x3C) thanh cong!");
+    // Khởi tạo màn hình OLED SSD1306 (thử cả 2 địa chỉ 0x3C và 0x3D)
+    if (drv_i2c_probe_device(0x3C)) {
+        oled_init_hardware(0x3C);
+    } else if (drv_i2c_probe_device(0x3D)) {
+        oled_init_hardware(0x3D);
+    } else {
+        s_oled_ready = false;
+        ESP_LOGW(TAG, "Chua phat hien Man hinh OLED SSD1306 tren SDA=GPIO%d, SCL=GPIO%d (0x3C/0x3D)!",
+                 I2C_MASTER_SDA_IO, I2C_MASTER_SCL_IO);
     }
 
     return ESP_OK;
+}
+
+// Quét toàn bộ 127 địa chỉ I2C trên bus và in nhật ký thiết bị đang phản hồi ACK
+void drv_i2c_scan_bus(void) {
+    ESP_LOGI(TAG, "==================================================");
+    ESP_LOGI(TAG, "  QUET TOAN BO DIA CHI I2C (SDA=GPIO%d, SCL=GPIO%d)", I2C_MASTER_SDA_IO, I2C_MASTER_SCL_IO);
+    ESP_LOGI(TAG, "==================================================");
+    int count = 0;
+    for (uint8_t a = 1; a < 127; a++) {
+        if (drv_i2c_probe_device(a)) {
+            ESP_LOGI(TAG, ">>> [I2C PHAT HIEN] Dia chi: 0x%02X (%d)", a, a);
+            count++;
+        }
+    }
+    if (count == 0) {
+        ESP_LOGW(TAG, ">>> [I2C SCAN] Khong co thiet bi nao phan hoi ACK tren SDA=GPIO%d, SCL=GPIO%d!",
+                 I2C_MASTER_SDA_IO, I2C_MASTER_SCL_IO);
+    }
+    ESP_LOGI(TAG, "==================================================");
 }
 
 // Kiểm tra nhanh (I2C Address Probe) xem thiết bị có phản hồi ACK trên bus hay không (Plug-and-Play)
@@ -195,20 +352,34 @@ esp_err_t drv_scd40_read_measurement(uint16_t *co2_out, float *temp_out, float *
 // 5. DRIVER MÀN HÌNH OLED SSD1306 (0x3C) HIỂN THỊ SỐ LIỆU & THÔNG BÁO TẠI CHỖ
 // =============================================================================
 void drv_oled_ssd1306_update(const sensor_data_t *data) {
-    // Màn hình gắn trên ESP32-S3 chỉ dùng để xuất thông báo & các thông số cốt lõi tại chỗ
-    // (không vẽ Heatmap phức tạp trên màn hình nhỏ này)
     char line1[32], line2[32], line3[32], line4[32];
-    snprintf(line1, sizeof(line1), "P.411 | %s", data->status);
-    snprintf(line2, sizeof(line2), "On: %.1fdBA (Nen %.1f)", data->laeq_db, data->laeq_bg_db);
-    snprintf(line3, sizeof(line3), "CO2:%uppm T:%.1fC RH:%.0f%%", data->co2_ppm, data->temp, data->rh);
-    snprintf(line4, sizeof(line4), "PM2.5:%.1f VOC:%.0fppb", data->pm25, data->voc_ppb);
+    snprintf(line1, sizeof(line1), "TQB: %s", data->status);
+    if (data->laeq_db > 0.0f) {
+        snprintf(line2, sizeof(line2), "NOISE: %.1f dBA", data->laeq_db);
+    } else {
+        snprintf(line2, sizeof(line2), "NOISE: DISCONNECT");
+    }
 
-    ESP_LOGI(TAG, "[MAN HINH OLED TAI NODE] %s | %s | %s | %s", line1, line2, line3, line4);
+    if (data->co2_ppm > 0) {
+        snprintf(line3, sizeof(line3), "CO2: %u ppm", data->co2_ppm);
+    } else {
+        snprintf(line3, sizeof(line3), "CO2: DISCONNECT");
+    }
+
+    if (data->temp > 0.0f) {
+        snprintf(line4, sizeof(line4), "T:%.1fC H:%.0f%%", data->temp, data->rh);
+    } else {
+        snprintf(line4, sizeof(line4), "ENV: DISCONNECT");
+    }
+
+    ESP_LOGI(TAG, "[MAN HINH OLED] %s | %s | %s | %s", line1, line2, line3, line4);
 
     if (s_oled_ready) {
-        // Đẩy buffer hiển thị qua I2C tới địa chỉ 0x3C của màn hình SSD1306
-        uint8_t cursor_reset[] = {0x00, 0x21, 0x00, 0x7F, 0x22, 0x00, 0x07};
-        i2c_master_write_to_device(I2C_MASTER_NUM, I2C_ADDR_OLED_SSD1306,
-                                   cursor_reset, sizeof(cursor_reset), pdMS_TO_TICKS(20));
+        oled_clear();
+        oled_draw_string(2, 0, line1);
+        oled_draw_string(2, 2, line2);
+        oled_draw_string(2, 4, line3);
+        oled_draw_string(2, 6, line4);
+        oled_flush();
     }
 }
