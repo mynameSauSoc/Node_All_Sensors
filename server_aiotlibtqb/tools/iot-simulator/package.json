@@ -1,0 +1,29 @@
+{
+  "name": "aiot-iot-simulator",
+  "version": "1.0.0",
+  "description": "Standalone IoT Circuit Simulator for AIoTLibTQB Smart Library System",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "iot-sim": "./bin/cli.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "provision": "node src/provision.js",
+    "sim": "node src/index.js",
+    "test": "node --test test/simulator.test.js",
+    "test:quick": "node src/index.js --scenario normal --duration 10 --devices 3"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "mqtt": "^5.10.3"
+  },
+  "keywords": [
+    "iot",
+    "simulator",
+    "mqtt",
+    "aiotlibtqb"
+  ],
+  "author": "AIoTLibTQB Team",
+  "license": "MIT"
+}

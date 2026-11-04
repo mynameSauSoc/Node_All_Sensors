@@ -4,115 +4,173 @@
 
 /**
  * @file app_config.h
- * @brief Cấu hình trung tâm của dự án Node_All_Sensors (ESP32-S3)
- *        Bao gồm:
- *        1. Cấu hình Wi-Fi, MQTT Broker (Luồng Nóng & Luồng Lạnh) và Bot Telegram.
- *        2. Công tắc chọn Chế độ vận hành: Giả lập Kiểm thử (Admin Test Mode) vs Phần cứng Thật (Real Hardware).
- *        3. Sơ đồ chân GPIO (Pinout) cho 3 Đèn LED đơn sắc rời, Bus I2C (BH1750, SHT30, SCD40, Màn hình OLED),
- *           Bus I2S DMA (Micro INMP441 + Mạch giải mã MAX98357A + Loa 1W), và ADC (Bụi Sharp GP2Y10, Khí độc, Pin UPS).
+ * @brief Cấu hình Trung tâm Hệ thống Trạm Cảm biến Node 1 (Node All Sensors)
+ *        Dự án: Hệ thống AIoT Giám sát Môi trường & Âm học Thư viện Tạ Quang Bửu (HUST)
+ *
+ * PHẦN CỨNG: Bo mạch 2 lớp Altium Designer 26 (0 lỗi DRC)
+ * NỀN TẢNG: ESP32-S3 (ESP-IDF v4.4 / FreeRTOS)
+ * SERVER BACKEND: Spring Boot 3 (Java 21 Virtual Threads) + MongoDB 8.0 TimeSeries
+ * BROKER: Eclipse Mosquitto 2.0 (Port 1883)
+ * WEB DASHBOARD: React 18 + Vite (Port 5173)
  */
 
 // =============================================================================
-// 1. CHẾ ĐỘ VẬN HÀNH & CẤU HÌNH VAI TRÒ NODE (PLUG-AND-PLAY MODULAR NODE)
+// 1. CHẾ ĐỘ VẬN HÀNH "PLUG-AND-PLAY / ZERO EXTRA CODE"
 // =============================================================================
-// Đặt = 1: Chạy chế độ Giả lập (Mock Data / Admin Stress Test) khi chưa cắm cảm biến vật lý.
-// Đặt = 0: Chạy chế độ Đọc Driver Phần Cứng Thật (tự động phát hiện cảm biến nào đang cắm, cảm biến nào đã rút ra).
-#define USE_MOCK_SENSOR_MODE    0
+/**
+ * @brief Công tắc chuyển đổi chế độ vận hành:
+ *        - Đặt = 0 (MẶC ĐỊNH SẢN XUẤT): Chạy trên bo mạch PCB Altium thật.
+ *          Hệ thống tự động quét I2C bus (I2C scanner), khởi tạo I2S DMA thu âm
+ *          và loa, bộ lọc RC ADC bụi mịn Sharp và chạy ngay lập tức mà KHÔNG CẦN
+ *          CHỈNH SỬA BẤT KỲ DÒNG CODE NÀO.
+ *        - Đặt = 1 (CHẾ ĐỘ MÔ PHỎNG / TEST): Hệ thống tự sinh số liệu môi trường
+ *          thực tế (có nhiễu Gaussian và dao động theo thời gian thực) để kiểm thử
+ *          toàn diện luồng tin từ biên lên Broker, Backend và Frontend.
+ */
+#define USE_MOCK_SENSOR_MODE        0
 
-// Định nghĩa 3 cấp độ Node theo đúng tài liệu thiết kế hệ thống:
-// - NODE_TYPE_1_TABLE  (Cấp 1 - Node Bàn Đọc) : Cắm INMP441 + BH1750 + 3 Đèn LED rời (Rút SHT30/SCD40/PM2.5)
-// - NODE_TYPE_2_COLUMN (Cấp 2 - Node Cột)     : Cắm SCD40 + BH1750 + INMP441 (Ồn nền) + MAX98357A Loa 1W + Màn OLED
-// - NODE_TYPE_3_SHELF  (Cấp 3 - Node Kệ Sách) : Cắm SHT30 + BH1750 + Sharp GP2Y10 PM2.5 + Khí độc SO2/NO2/VOCs
-// - NODE_TYPE_ALL_TEST (Node Tổng hợp Demo)   : Bật toàn bộ các module để kiểm thử tổng thể
-#define NODE_ROLE_CURRENT       4   // 1: Node 1 Bàn | 2: Node 2 Cột | 3: Node 3 Kệ Sách | 4: Node All Sensors
+// Cấu hình vai trò Node (Node 1 Bàn đọc / Node 2 Cột / Node 3 Kệ sách / Node All Sensors)
+#define NODE_ROLE_CURRENT           4   // 1: Bàn | 2: Cột | 3: Kệ | 4: Node All Sensors
 
-// =============================================================================
-// 2. CẤU HÌNH MẠNG WI-FI, MQTT BROKER & TELEGRAM BOT THỦ THƯ
-// =============================================================================
-#define WIFI_SSID               "FPT TANG 5"
-#define WIFI_PASS               "88888888"
-
-#define MQTT_BROKER_URI         "mqtt://192.168.100.209"
-#define MQTT_TOPIC_TELEMETRY    "library/p411/node_all_sensors/telemetry" // Luồng Lạnh: Lưu InfluxDB & Vẽ biểu đồ
-#define MQTT_TOPIC_ALERT        "library/p411/node_all_sensors/alert"     // Luồng Nóng: Bắn tức thời (<100ms) ra Telegram & Loa
-#define MQTT_TOPIC_ADMIN_CMD    "library/p411/node_all_sensors/cmd"       // Nhận lệnh điều khiển Test từ Admin
-
-// Thông tin Bot Telegram chính thức của dự án (nhận cảnh báo qua cả Wi-Fi lẫn 4G/5G)
-#define TELEGRAM_BOT_TOKEN      "8955861861:AAGOT3pJCJs5_2_e231k8wXsirzR9AyOR7o"
-#define TELEGRAM_CHAT_ID        "8777618210"
+// Thông tin định danh phần cứng (Khớp với CSDL Spring Boot & Mosquitto ACL)
+#define DEFAULT_HARDWARE_ID         "Node_All_Sensors"
+#define DEFAULT_ROOM_ID             "P411"
+#define FIRMWARE_VERSION            "1.2.0"
 
 // =============================================================================
-// 3. SƠ ĐỒ CHÂN PHẦN CỨNG (PINOUT) TRÊN CHIP ESP32-S3
+// 2. CẤU HÌNH MẠNG WI-FI & MQTT BROKER MOSQUITTO 2.0 (CHUẨN HÓA MỚI)
 // =============================================================================
-// --- A. 3 Bóng Đèn LED Đơn Sắc Riêng Biệt (Không dùng LED dải RGB) ---
-#define LED_GREEN_PIN           1   // GPIO 1 : Bóng LED Xanh lá (Mức An toàn <= 45 dBA)
-#define LED_BLUE_PIN            2   // GPIO 2 : Bóng LED Xanh dương (Mức Nhắc nhở 45 - 55 dBA)
-#define LED_RED_PIN             42  // GPIO 42: Bóng LED Đỏ (Mức Báo động > 55 dBA)
+// Cụm Server MỚI: Eclipse Mosquitto 2.0 (1883) | Spring Boot 3 (8080) | MongoDB (27017)
+#define WIFI_SSID_DEFAULT           "FPT TANG 5"
+#define WIFI_PASS_DEFAULT           "88888888"
 
-// --- B. Bus Giao tiếp I2C Dùng Chung (BH1750, SHT30, SCD40, Màn hình OLED SSD1306) ---
-#define I2C_MASTER_NUM          0           // Sử dụng bộ điều khiển I2C phần cứng số 0
-#define I2C_MASTER_SDA_IO       8           // Chân truyền dữ liệu I2C (SDA -> GPIO 8)
-#define I2C_MASTER_SCL_IO       9           // Chân xung nhịp I2C (SCL -> GPIO 9)
-#define I2C_MASTER_FREQ_HZ      100000      // Tốc độ chuẩn 100 kHz (ổn định nhất khi nối nhiều cảm biến)
+#define MQTT_BROKER_URI_DEFAULT     "mqtt://192.168.1.100:1883"
+#define MQTT_USERNAME_DEFAULT       "Node_All_Sensors"
+#define MQTT_PASSWORD_DEFAULT       "CHANGE_ME_LOCAL_DEV_DEVICE"
 
-#define I2C_ADDR_BH1750         0x23        // Địa chỉ 7-bit của Cảm biến ánh sáng BH1750
-#define I2C_ADDR_SHT30          0x44        // Địa chỉ 7-bit của Cảm biến nhiệt/ẩm SHT30 / SHT31
-#define I2C_ADDR_SCD40          0x62        // Địa chỉ 7-bit của Cảm biến khí CO2 NDIR SCD40
-#define I2C_ADDR_OLED_SSD1306   0x3C        // Địa chỉ 7-bit của Màn hình OLED 0.96" SSD1306 (128x64)
+// Định dạng Topic MQTT chuẩn hóa: devices/{hardwareId}/...
+#define MQTT_TOPIC_TELEMETRY_FMT    "devices/%s/telemetry"
+#define MQTT_TOPIC_STATUS_FMT       "devices/%s/status"
+#define MQTT_TOPIC_COMMAND_FMT      "devices/%s/command"
 
-// --- C. Bus Giao tiếp Âm thanh Số I2S DMA (Micro INMP441 & Mạch Loa MAX98357A) ---
-#define I2S_MIC_PORT            0           // I2S0 Rx: Thu âm từ Micro kỹ thuật số INMP441
-#define I2S_MIC_SCK_PIN         4           // Chân xung nhịp bit BCLK/SCK của INMP441 (GPIO 4)
-#define I2S_MIC_WS_PIN          5           // Chân chọn kênh trái/phải WS/LRCLK của INMP441 (GPIO 5)
-#define I2S_MIC_SD_PIN          6           // Chân dữ liệu âm thanh SD của INMP441 (GPIO 6)
-
-#define I2S_SPK_PORT            1           // I2S1 Tx: Phát âm báo ra mạch giải mã MAX98357A Class-D + Loa 1W
-#define I2S_SPK_BCLK_PIN        15          // Chân xung nhịp BCLK của MAX98357A (GPIO 15)
-#define I2S_SPK_LRC_PIN         16          // Chân chọn kênh LRC của MAX98357A (GPIO 16)
-#define I2S_SPK_DIN_PIN         7           // Chân dữ liệu âm thanh DIN của MAX98357A (GPIO 7)
-
-// --- D. Cụm Cảm biến Bụi mịn Sharp GP2Y1014AU0F, Khí độc Analog & Đo Pin UPS ---
-#define SHARP_LED_Trigger_PIN   10          // GPIO 10: Chân kích xung bật/tắt LED hồng ngoại của cảm biến bụi Sharp
-#define ADC_CH_SHARP_PM25       2           // ADC1_CHANNEL_2 (GPIO 3): Đọc điện áp tán xạ bụi mịn PM2.5
-#define ADC_CH_GAS_SO2          3           // ADC1_CHANNEL_3 (GPIO 4/tuỳ chọn): Đọc tín hiệu AFE cảm biến SO2
-#define ADC_CH_GAS_NO2          4           // ADC1_CHANNEL_4: Đọc tín hiệu AFE cảm biến NO2
-#define ADC_CH_GAS_VOC          5           // ADC1_CHANNEL_5: Đọc tín hiệu cảm biến VOCs
-#define ADC_CH_UPS_BATTERY      6           // ADC1_CHANNEL_6: Đọc cầu phân áp kiểm tra nguồn AC / % Pin dự phòng UPS
+// Kênh cảnh báo Telegram khẩn cấp (qua Backend hoặc gửi trực tiếp)
+#define TELEGRAM_BOT_TOKEN          "8955861861:AAGOT3pJCJs5_2_e231k8wXsirzR9AyOR7o"
+#define TELEGRAM_CHAT_ID            "8777618210"
 
 // =============================================================================
-// 4. CẤU HÌNH CHU KỲ ĐO ĐA TỐC ĐỘ (MULTI-RATE SAMPLING) & BỘ NHỚ OFFLINE
+// 3. SƠ ĐỒ CHÂN PHẦN CỨNG (PINOUT KHỚP 100% SCHEMATIC & PCB ALTIUM DESIGNER 26)
 // =============================================================================
-#define AUDIO_FAST_LOOP_MS          1000    // 1 giây/lần : Quét âm thanh INMP441 & kiểm tra vượt ngưỡng tức thời
-#define LUX_SAMPLE_PERIOD_SEC       5       // 5 giây/lần : Đo ánh sáng BH1750
-#define ENV_GAS_SAMPLE_PERIOD_SEC   10      // 10 giây/lần: Đo Vi khí hậu (SHT30/SCD40) & Khí độc (VOCs, SO2, NO2)
-#define PM25_SAMPLE_PERIOD_SEC      30      // 30 giây/lần: Đo bụi mịn PM2.5 (bảo vệ tuổi thọ cảm biến)
+/**
+ * --- A. Cụm 3 Bóng Đèn LED Đơn Sắc Rời (Active HIGH, qua trở hạn dòng 330Ω) ---
+ * - GPIO 1  : G_LED (LED Xanh lá - Mức an toàn, <= 45 dBA)
+ * - GPIO 2  : B_LED (LED Xanh dương - Mức nhắc nhở, 45 - 55 dBA)
+ * - GPIO 42 : R_LED (LED Đỏ - Mức báo động, > 55 dBA / Khí độc cao)
+ */
+#define LED_GREEN_PIN               1
+#define LED_BLUE_PIN                2
+#define LED_RED_PIN                 42
 
-#define PUBLISH_PERIOD_AC_SEC       10      // Khi có điện lưới: Gửi gói tin định kỳ mỗi 10 giây (nếu không có biến cố)
-#define PUBLISH_PERIOD_UPS_SEC      30      // Khi mất điện (chạy Pin UPS): Giãn chu kỳ gửi/lưu lên 30 giây
+/**
+ * --- B. Shared I2C Bus (Kéo trở R5 = 4.7 kΩ, R6 = 4.7 kΩ lên 3.3V) ---
+ * - GPIO 8 : SDA (I2C Data)
+ * - GPIO 9 : SCL (I2C Clock)
+ * Phục vụ 4 ngoại vi số:
+ *   1. OLED 0.96" SH1106 / SSD1306 (Địa chỉ I2C: 0x3C, dự phòng 0x3D)
+ *   2. SHT30 / SHT31 Nhiệt độ - Độ ẩm chính xác (Địa chỉ I2C: 0x44)
+ *   3. BH1750 Độ rọi ánh sáng Lux (Địa chỉ I2C: 0x23)
+ *   4. SCD40 Khí CO2 NDIR quang âm (Địa chỉ I2C: 0x62)
+ */
+#define I2C_MASTER_NUM              0
+#define I2C_MASTER_SDA_IO           8
+#define I2C_MASTER_SCL_IO           9
+#define I2C_MASTER_FREQ_HZ          100000  // 100 kHz chuẩn công nghiệp ổn định nhất
 
-#define OFFLINE_STORAGE_MAX_RECORDS 14680   // Sức chứa tối đa trên 1MB Flash (~14,680 bản ghi nhị phân x 64 bytes)
-#define OFFLINE_REPLAY_BATCH_SIZE   5       // Số bản ghi cũ xả bù tối đa mỗi chu kỳ khi có Wi-Fi trở lại
+#define I2C_ADDR_BH1750             0x23
+#define I2C_ADDR_OLED_DEFAULT       0x3C
+#define I2C_ADDR_OLED_ALT           0x3D
+#define I2C_ADDR_SHT30              0x44
+#define I2C_ADDR_SCD40              0x62
+
+/**
+ * --- C. Bus Âm thanh Số I2S DMA Kép (Micro MEMS INMP441 & Amply MAX98357A) ---
+ * - I2S0 Rx (Micro INMP441, 24-bit DMA, 16 kHz):
+ *   * SCK (BCLK) : GPIO 4
+ *   * WS  (LRCLK): GPIO 5
+ *   * SD  (DATA) : GPIO 6
+ * - I2S1 Tx (Amply MAX98357A Class-D + Loa 1W 8Ω):
+ *   * BCLK        : GPIO 15
+ *   * LRC (LRCLK) : GPIO 16
+ *   * DIN (DATA)  : GPIO 7
+ */
+#define I2S_MIC_PORT                0
+#define I2S_MIC_SCK_PIN             4
+#define I2S_MIC_WS_PIN              5
+#define I2S_MIC_SD_PIN              6
+
+#define I2S_SPK_PORT                1
+#define I2S_SPK_BCLK_PIN            15
+#define I2S_SPK_LRC_PIN             16
+#define I2S_SPK_DIN_PIN             7
+
+/**
+ * --- D. Cụm Cảm biến Bụi Sharp GP2Y1014AU0F & Kênh ADC1 ---
+ * - GPIO 10 : Xung kích DUST_PULSE điều khiển cực Base transistor BJT SS8050 (Q_DUST NPN).
+ *             (Mức CAO = 1 làm BJT bão hòa kéo Pin 3 Sharp xuống GND -> BẬT LED hồng ngoại;
+ *              Mức THẤP = 0 ngắt BJT -> TẮT LED hồng ngoại).
+ * - GPIO 3  : DUST_ADC kết nối ngõ vào ADC1_CHANNEL_2.
+ *             Tín hiệu Vo đi qua cầu phân áp R2=10kΩ, R3=20kΩ:
+ *             V_ADC = Vo * (20 / (10 + 20)) = Vo * (2/3)
+ *             -> Firmware BẮT BUỘC NHÂN HỆ SỐ NGƯỢC LẠI LÀ 1.5 để khôi phục chính xác Vo!
+ */
+#define SHARP_LED_Trigger_PIN       10
+#define ADC_CH_SHARP_PM25           2   // ADC1_CHANNEL_2 (GPIO 3)
+#define SHARP_DIVIDER_FACTOR        1.5f // Hệ số khôi phục cầu phân áp 10k:20k
+
+// Các kênh ADC1 phụ trợ cho Khí độc và Giám sát Pin UPS
+#define ADC_CH_GAS_SO2              3   // ADC1_CHANNEL_3 (Chân mở rộng)
+#define ADC_CH_GAS_NO2              4   // ADC1_CHANNEL_4
+#define ADC_CH_GAS_VOC              5   // ADC1_CHANNEL_5
+#define ADC_CH_UPS_BATTERY          6   // ADC1_CHANNEL_6 (Cầu phân áp 1:2 đọc Pin 18650)
+
+/**
+ * --- E. CHÂN CẤM SỬ DỤNG / BỎ TRỐNG TUYỆT ĐỐI ---
+ * 1. GPIO 35, 36, 37: Dành riêng cho Octal PSRAM/Flash nội bộ của ESP32-S3. CẤM ĐI DÂY.
+ * 2. Hai chân 3V3 của kit ESP32-S3: BỎ TRỐNG trên PCB. Hệ thống dùng IC LDO U1 LM1117-3.3 riêng
+ *    cấp điện 3.3V độc lập, chống sụt áp khi phát sóng Wi-Fi và nung nhiệt SCD40.
+ */
 
 // =============================================================================
-// 5. NGƯỠNG CẢNH BÁO TIÊU CHUẨN (KÍCH HOẠT TELEGRAM & LOA BÁO THỦ THƯ)
+// 4. CHU KỲ ĐO ĐA TỐC ĐỘ (MULTI-RATE SAMPLING) & TRUYỀN TIN MQTT
 // =============================================================================
-#define NOISE_WARNING_DB        45.0f   // Ngưỡng bắt đầu nhắc nhở tiếng ồn (dBA) -> Bật LED Xanh dương
-#define NOISE_ALERT_DB          55.0f   // Ngưỡng vượt mức ồn cho phép -> Bật LED Đỏ + Loa 1W + Gửi Telegram
-#define CO2_ALERT_PPM           1000    // Ngưỡng CO2 gây ngột ngạt, buồn ngủ (ppm)
-#define RH_ALERT_PERCENT        65.0f   // Ngưỡng độ ẩm nguy cơ nấm mốc sách (%RH theo chuẩn ISO 11799)
-#define PM25_ALERT_UGM3         35.0f   // Ngưỡng bụi mịn PM2.5 bám bề mặt tài liệu (ug/m3)
-#define SO2_ALERT_PPB           10.0f   // Ngưỡng khí độc SO2 gây axit hóa giấy (ppb)
-#define NO2_ALERT_PPB           10.0f   // Ngưỡng khí độc NO2 gây oxy hóa & ố vàng giấy (ppb)
-#define VOC_ALERT_PPB           300.0f  // Ngưỡng khí VOCs làm ố vàng tài liệu (ppb)
+#define AUDIO_FAST_LOOP_MS          1000    // 1 giây/lần : Đọc I2S DMA tính LAeq, SPL peak
+#define LUX_SAMPLE_PERIOD_SEC       5       // 5 giây/lần : Đọc độ rọi BH1750
+#define ENV_GAS_SAMPLE_PERIOD_SEC   10      // 10 giây/lần: Đọc SHT30, SCD40, Khí độc
+#define PM25_SAMPLE_PERIOD_SEC      30      // 30 giây/lần: Kích xung 280us đo bụi Sharp
+
+#define PUBLISH_PERIOD_AC_SEC       5       // Có điện lưới: Bắn MQTT mỗi 5 giây (Chuẩn SSOT)
+#define PUBLISH_PERIOD_UPS_SEC      30      // Chạy pin dự phòng: Giãn chu kỳ lên 30 giây
+
+#define OFFLINE_STORAGE_MAX_RECORDS 14680   // ~14,680 bản ghi x 64 bytes trên phân vùng SPIFFS 1MB
+#define OFFLINE_REPLAY_BATCH_SIZE   5       // Xả bù tối đa 5 bản ghi/chu kỳ khi mạng hồi phục
 
 // =============================================================================
-// 6. CẤU TRÚC BẢN GHI NHỊ PHÂN LƯU FLASH KHI MẤT ĐIỆN / MẤT WI-FI (64 BYTES)
+// 5. TIÊU CHUẨN ĐÁNH GIÁ MÔI TRƯỜNG & THUẬT TOÁN TIỆN NGHI HỌC TẬP LCS LIEBIG
+// =============================================================================
+#define NOISE_LIMIT_SAFE_DB         45.0f   // Mức yên tĩnh lý tưởng (<= 45 dBA) -> LED Xanh lá
+#define NOISE_LIMIT_WARN_DB         55.0f   // Mức nhắc nhở (45 - 55 dBA) -> LED Xanh dương
+#define NOISE_LIMIT_ALERT_DB        65.0f   // Mức báo động (> 55 dBA) -> LED Đỏ + Loa 1W
+#define CO2_LIMIT_ALERT_PPM         1000    // Ngưỡng CO2 gây ngột ngạt buồn ngủ
+#define RH_LIMIT_ALERT_PERCENT      65.0f   // Ngưỡng ẩm nguy cơ nấm mốc (ISO 11799)
+#define PM25_LIMIT_ALERT_UGM3       35.0f   // Ngưỡng bụi mịn vượt tiêu chuẩn WHO
+
+// =============================================================================
+// 6. CẤU TRÚC BẢN GHI LƯU TRỮ FLASH SPIFFS KHI MẤT MẠNG (ĐÚNG 64 BYTES)
 // =============================================================================
 typedef struct __attribute__((packed)) {
-    uint32_t timestamp;      // Thời điểm đo (Unix epoch / Uptime giây) - 4 bytes
-    float    laeq_db;        // Độ ồn bàn đọc LAeq (dBA) - 4 bytes
+    uint32_t timestamp;      // Unix Epoch (giây) - 4 bytes
+    float    laeq_db;        // Độ ồn LAeq (dBA) - 4 bytes
     float    laeq_bg_db;     // Độ ồn nền LAeq,bg (dBA) - 4 bytes
-    float    spl_peak_db;    // Áp suất âm đỉnh SPL (dBA) - 4 bytes
+    float    spl_peak_db;    // Áp suất âm đỉnh (dBA) - 4 bytes
     float    temp;           // Nhiệt độ (°C) - 4 bytes
     float    rh;             // Độ ẩm (%RH) - 4 bytes
     float    lux;            // Ánh sáng (Lux) - 4 bytes
@@ -122,41 +180,49 @@ typedef struct __attribute__((packed)) {
     float    voc_ppb;        // Khí VOCs (ppb) - 4 bytes
     uint16_t co2_ppm;        // Khí CO2 (ppm) - 2 bytes
     uint8_t  librarian_spk;  // Trạng thái Loa (0/1) - 1 byte
-    uint8_t  telegram_alert; // Cờ cảnh báo Telegram (0/1) - 1 byte
-    uint8_t  power_mode;     // Nguồn điện (1: Điện lưới AC, 0: Pin dự phòng UPS) - 1 byte
-    uint8_t  battery_pct;    // Dung lượng Pin dự phòng (%) - 1 byte
-    char     status[14];     // Mã trạng thái LED ngắn gọn - 14 bytes (Tổng = 64 bytes)
+    uint8_t  telegram_alert; // Cờ cảnh báo khẩn (0/1) - 1 byte
+    uint8_t  power_mode;     // Nguồn (1: AC, 0: Pin UPS) - 1 byte
+    uint8_t  battery_pct;    // % Pin dự phòng - 1 byte
+    char     status[14];     // Mã trạng thái LED - 14 bytes (Tổng = 64 bytes)
 } offline_record_64b_t;
 
 // =============================================================================
-// 7. CẤU TRÚC DỮ LIỆU ĐO ĐẠC TOÀN DIỆN (NODE_ALL_SENSORS)
+// 7. CẤU TRÚC DỮ LIỆU ĐO TOÀN DIỆN NODE 1 (NODE_ALL_SENSORS)
 // =============================================================================
 typedef struct {
-    // --- A. Nhóm Xử lý & Quản lý Âm thanh (INMP441 + MAX98357A + Loa 1W) ---
-    float    laeq_db;        // Độ ồn tương đương tại bàn đọc LAeq (dBA)
-    float    laeq_bg_db;     // Độ ồn nền tham chiếu toàn phòng LAeq,bg (dBA)
-    float    spl_peak_db;    // Áp suất âm thanh tức thời đỉnh (dBA)
-    int      librarian_spk;  // Trạng thái Loa 1W (1: Phát thông báo báo Thủ thư, 0: Tắt)
+    // --- Âm học I2S (INMP441 + MAX98357A) ---
+    float    laeq_db;        // Độ ồn LAeq (dBA)
+    float    laeq_bg_db;     // Độ ồn nền LAeq,bg (dBA)
+    float    spl_peak_db;    // Áp suất âm đỉnh (dBA)
+    int      librarian_spk;  // 1: Loa đang phát cảnh báo, 0: Tắt
 
-    // --- B. Nhóm Vi khí hậu & Ánh sáng (SCD40 0x62, SHT30 0x44, BH1750 0x23) ---
-    uint16_t co2_ppm;        // Nồng độ khí CO2 thực tế (ppm)
-    float    temp;           // Nhiệt độ môi trường (°C)
-    float    rh;             // Độ ẩm tương đối (%RH)
-    float    lux;            // Cường độ ánh sáng / Độ rọi (Lux)
+    // --- Vi khí hậu & Ánh sáng I2C (SHT30, BH1750, SCD40) ---
+    float    temp;           // Nhiệt độ (°C)
+    float    rh;             // Độ ẩm (%RH)
+    float    lux;            // Ánh sáng (Lux)
+    uint16_t co2_ppm;        // Nồng độ CO2 (ppm)
 
-    // --- C. Nhóm Bảo quản sách & Tài liệu lưu trữ (Sharp GP2Y10, SO2, NO2, VOCs) ---
-    float    pm25;           // Nồng độ bụi mịn PM2.5 (ug/m3)
-    float    so2_ppb;        // Khí độc hóa học SO2 (ppb)
-    float    no2_ppb;        // Khí độc hóa học NO2 (ppb)
-    float    voc_ppb;        // Hợp chất hữu cơ bay hơi VOCs (ppb)
+    // --- Bụi mịn & Khí độc (Sharp GP2Y10 + ADC) ---
+    float    pm1_0;          // Bụi siêu mịn PM1.0 (ug/m3)
+    float    pm25;           // Bụi mịn PM2.5 (ug/m3)
+    float    pm4_0;          // Bụi PM4.0 (ug/m3)
+    float    pm10;           // Bụi thô PM10 (ug/m3)
+    float    so2_ppb;        // Khí SO2 (ppb)
+    float    no2_ppb;        // Khí NO2 (ppb)
+    float    voc_ppb;        // Khí VOCs (ppb)
 
-    // --- D. Nhóm Quản lý Nguồn Pin Dự phòng (UPS) & Lưu trữ Offline ---
-    int      power_mode;     // Nguồn cấp (1: Điện lưới AC, 0: Đang chạy Pin dự phòng UPS)
-    int      battery_pct;    // Phần trăm dung lượng Pin dự phòng UPS (0 - 100%)
-    uint32_t offline_cached; // Số lượng bản ghi đang lưu trong Flash 1MB chờ mạng khôi phục
+    // --- Quản lý Nguồn Pin & Lưu trữ ---
+    int      power_mode;     // 1: AC, 0: Pin UPS
+    int      battery_pct;    // % Pin (0 - 100%)
+    uint32_t offline_cached; // Số gói tin lưu trong Flash chờ đồng bộ
+    int      wifi_rssi;      // Cường độ sóng Wi-Fi (dBm)
 
-    // --- E. Nhóm Cảnh báo (3 Đèn LED đơn sắc + Telegram Bot + Loa Thủ thư) ---
-    int      telegram_alert; // Cờ kích hoạt gửi tin nhắn Telegram cho Thủ thư (1: Vượt ngưỡng, 0: An toàn)
-    char     status[24];     // Trạng thái 3 đèn LED rời: "GREEN_NORMAL", "BLUE_WARNING", "RED_ALERT"
-    char     alert_msg[256]; // Nội dung tin nhắn Tiếng Việt gửi Thủ thư & hiển thị lên màn hình
+    // --- Điểm Tiện Nghi Học Tập Liebig LCS ---
+    float    lcs_score;      // Điểm tổng hợp LCS (0 - 100)
+    char     lcs_rank[16];   // "Platinum", "Gold", "Silver", "Bronze", "Poor"
+
+    // --- Cảnh báo & Hiển thị ---
+    int      telegram_alert; // 1: Cảnh báo khẩn cấp, 0: Bình thường
+    char     status[24];     // "GREEN_NORMAL", "BLUE_WARNING", "RED_ALERT"
+    char     alert_msg[256]; // Thông báo Tiếng Việt
 } sensor_data_t;

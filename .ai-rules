@@ -1,10 +1,10 @@
 # AI AGENT BEHAVIOR RULES FOR HYBRID HARDWARE-SOFTWARE PROJECT
 
 ## 1. CONTEXT MINIMIZATION (TIẾT KIỆM TOKEN)
-- KHÔNG giải thích lại các lý thuyết cơ bản về mạch hoặc code trừ khi được yêu cầu.
+- KHÔNG giải thích lại các lý thuyết cơ bản về mạch hoặc code trừ khi được người dùng yêu cầu.
 - KHÔNG tự tiện đọc toàn bộ mã nguồn nếu nhiệm vụ chỉ liên quan đến một module.
 - Khi trả lời, chỉ xuất ra phần code/cấu hình thay đổi, KHÔNG viết lại toàn bộ file nếu không cần thiết.
-- Luôn ưu tiên tham chiếu đến `HARDWARE_MAP.md` và `SOFTWARE_ARCH.md` để lấy thông tin thay vì bắt người dùng giải thích lại bối cảnh.
+- Luôn ưu tiên tham chiếu đến `HARDWARE_MAP.md`, `SOFTWARE_ARCH.md` và `.agent/rules/team-protocol.md` để lấy thông tin thay vì bắt người dùng giải thích lại bối cảnh.
 
 ## 2. HARDWARE & SOFTWARE SEPARATION
 - Mọi cấu hình chân (Pinout), giao tiếp (I2C, SPI, UART), và linh kiện PHẢI được đồng bộ vào file `HARDWARE_MAP.md`.
@@ -12,4 +12,12 @@
 - Nếu có sự thay đổi về phần cứng ảnh hưởng đến code (hoặc ngược lại), AI phải yêu cầu cập nhật file Markdown tương ứng TRƯỚC khi viết code mới.
 
 ## 3. CHAT THREAD PROTOCOL
-- Khi người dùng mở Chat Thread mới, hãy đọc file `.ai-rules`, `HARDWARE_MAP.md`, và `SOFTWARE_ARCH.md` để lấy ngữ cảnh. Tuyệt đối không yêu cầu người dùng kể lại lịch sử của thread cũ.
+- Khi người dùng mở Chat Thread mới, hãy đọc file `.ai-rules`, `HARDWARE_MAP.md`, `SOFTWARE_ARCH.md`, và `.agent/rules/team-protocol.md` để lấy ngữ cảnh. Tuyệt đối không yêu cầu người dùng kể lại lịch sử của thread cũ.
+
+## 4. AGENT DISPATCH & SKILL ROUTING (PHÂN LUỒNG VAI & KỸ NĂNG)
+- Mọi yêu cầu trong dự án bắt buộc phải phân luồng đúng vai (Role) và đúng kỹ năng (Skill) theo file `.agent/rules/team-protocol.md`:
+  - **Kỹ sư Phần cứng (`HW`)**: Kích hoạt `schematic-design`, `datasheet-analysis`, `engineering-calc`. Bắt buộc tuân thủ Quy trình 7 bước thiết kế mạch in (Kiểm tra khối/nguồn -> Thẩm định footprint/công suất -> Nguyên lý & Footprint Manager -> Board Shape & DRC Altium 26 -> Bố trí linh kiện placement -> Đi dây & Phủ mass GND -> DRC 0 lỗi & Xuất Gerber JLCPCB).
+  - **Kỹ sư Nhúng Firmware (`EMB`)**: Kích hoạt `code-ops`, `datasheet-analysis`. Quản lý ESP32-S3 ESP-IDF v4.4.8, I2S DMA, FreeRTOS, MQTT.
+  - **Kỹ sư Máy chủ (`SRV/BE`)**: Kích hoạt `code-ops`. Quản lý Docker, Mosquitto, InfluxDB, Telegraf.
+  - **Kỹ sư Giao diện (`FE`)**: Kích hoạt `code-ops`. Quản lý React Web, Grafana.
+  - **Kỹ sư Báo cáo (`DOC`)**: Kích hoạt `report-docx`. Quản lý tài liệu kỹ thuật & luận văn tốt nghiệp.

@@ -1,0 +1,122 @@
+{
+  "STUDY_ROOM": {
+    "description": "Standard silent or collaborative study room",
+    "temperature": {
+      "baseline": 24.0,
+      "diurnalAmplitude": 2.0,
+      "noiseStd": 0.3,
+      "min": 18.0,
+      "max": 30.0
+    },
+    "humidity": {
+      "baseline": 55.0,
+      "diurnalAmplitude": 6.0,
+      "noiseStd": 1.0,
+      "min": 40.0,
+      "max": 75.0
+    },
+    "acoustics": {
+      "baselineAvg": 42.0,
+      "diurnalAmplitude": 6.0,
+      "noiseStd": 1.5,
+      "peakOffset": 8.0,
+      "minAvg": 32.0,
+      "maxAvg": 60.0
+    },
+    "airQuality": {
+      "baselinePm25": 14.0,
+      "diurnalAmplitude": 4.0,
+      "noiseStd": 1.2,
+      "pm1_0Ratio": 0.65,
+      "pm4_0Ratio": 1.25,
+      "pm10Ratio": 1.55
+    },
+    "lux": {
+      "baseline": 420.0,
+      "diurnalAmplitude": 180.0,
+      "noiseStd": 15.0,
+      "min": 50.0,
+      "max": 750.0
+    }
+  },
+  "BOOK_STORAGE": {
+    "description": "Archival book storage with strict climate control and low human activity",
+    "temperature": {
+      "baseline": 20.0,
+      "diurnalAmplitude": 0.8,
+      "noiseStd": 0.15,
+      "min": 18.0,
+      "max": 22.0
+    },
+    "humidity": {
+      "baseline": 48.0,
+      "diurnalAmplitude": 2.0,
+      "noiseStd": 0.5,
+      "min": 45.0,
+      "max": 52.0
+    },
+    "acoustics": {
+      "baselineAvg": 34.0,
+      "diurnalAmplitude": 2.0,
+      "noiseStd": 0.8,
+      "peakOffset": 4.0,
+      "minAvg": 30.0,
+      "maxAvg": 42.0
+    },
+    "airQuality": {
+      "baselinePm25": 8.0,
+      "diurnalAmplitude": 1.5,
+      "noiseStd": 0.6,
+      "pm1_0Ratio": 0.60,
+      "pm4_0Ratio": 1.20,
+      "pm10Ratio": 1.45
+    },
+    "lux": {
+      "baseline": 80.0,
+      "diurnalAmplitude": 30.0,
+      "noiseStd": 5.0,
+      "min": 20.0,
+      "max": 150.0
+    }
+  },
+  "CIRCULATION_HALL": {
+    "description": "High traffic main reception and circulation corridor",
+    "temperature": {
+      "baseline": 25.5,
+      "diurnalAmplitude": 3.0,
+      "noiseStd": 0.5,
+      "min": 20.0,
+      "max": 31.0
+    },
+    "humidity": {
+      "baseline": 58.0,
+      "diurnalAmplitude": 8.0,
+      "noiseStd": 1.5,
+      "min": 42.0,
+      "max": 80.0
+    },
+    "acoustics": {
+      "baselineAvg": 52.0,
+      "diurnalAmplitude": 9.0,
+      "noiseStd": 2.5,
+      "peakOffset": 12.0,
+      "minAvg": 38.0,
+      "maxAvg": 64.0
+    },
+    "airQuality": {
+      "baselinePm25": 22.0,
+      "diurnalAmplitude": 8.0,
+      "noiseStd": 2.0,
+      "pm1_0Ratio": 0.70,
+      "pm4_0Ratio": 1.30,
+      "pm10Ratio": 1.65
+    },
+    "lux": {
+      "baseline": 550.0,
+      "diurnalAmplitude": 250.0,
+      "noiseStd": 25.0,
+      "min": 100.0,
+      "max": 900.0
+    }
+  }
+}

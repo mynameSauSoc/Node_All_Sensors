@@ -1,0 +1,58 @@
+# Compiled class files & build output
+target/
+*.class
+
+# Node.js / Next.js dependencies & build output
+node_modules/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/dist/
+frontend/coverage/
+frontend/.vitest/
+tools/iot-simulator/node_modules/
+*.tsbuildinfo
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Package & binary files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*.exe
+
+# Virtual machine crash logs
+hs_err_pid*
+replay_pid*
+
+# IDE & Editor settings
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# Sensitive Configuration & Credentials
+mosquitto/config/password.txt
+*.secret
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+
+# Temporary agent logs
+.agents/teamwork/
+
+# OS generated files
+.DS_Store
+Thumbs.db

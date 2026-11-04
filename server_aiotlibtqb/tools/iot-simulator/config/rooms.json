@@ -1,0 +1,523 @@
+{
+  "zones": [
+    {
+      "id": "ZONE_A",
+      "name": "Khu Vực Học Tập Yên Tĩnh & Phòng Đọc Chính",
+      "description": "Các phòng đọc lớn, phòng Multimedia và kho sách cánh Tây"
+    },
+    {
+      "id": "ZONE_B",
+      "name": "Khu Vực Thảo Luận Nhóm & Phòng Đọc Cánh Đông",
+      "description": "Cụm phòng làm việc nhóm Tầng 5 và phòng đọc cánh Đông"
+    },
+    {
+      "id": "ZONE_C",
+      "name": "Khu Lưu Trữ Đặc Biệt & Phòng Truyền Thống",
+      "description": "Kho bảo quản tư liệu quý hiếm và Phòng Truyền thống TQB"
+    },
+    {
+      "id": "ZONE_HALL",
+      "name": "Khu Vực Sảnh Lưu Thông & Dịch Vụ Bạn Đọc",
+      "description": "Sảnh trung tâm Tầng 1, cửa từ kiểm soát và dịch vụ sao chụp/mượn liên thư viện"
+    }
+  ],
+  "rooms": [
+    {
+      "code": "ROOM_001",
+      "name": "Sảnh Trung Tâm & Cửa Từ Kiểm Soát Tầng 1 (1448.37 m²)",
+      "floor": 1,
+      "capacity": 220,
+      "type": "CIRCULATION_HALL",
+      "targetComfortScore": 80.0,
+      "description": "Sảnh lễ tân trung tâm, cửa từ kiểm soát và khu tra cứu Kiosk OPAC Tầng 1",
+      "boundaryPolygon": [
+        { "x": 0.301, "y": 0.360 },
+        { "x": 0.699, "y": 0.360 },
+        { "x": 0.699, "y": 0.768 },
+        { "x": 0.600, "y": 0.768 },
+        { "x": 0.600, "y": 0.875 },
+        { "x": 0.400, "y": 0.875 },
+        { "x": 0.400, "y": 0.768 },
+        { "x": 0.301, "y": 0.768 }
+      ]
+    },
+    {
+      "code": "ROOM_101",
+      "name": "Kho Sách Tầng 1 - Cánh Tây (264.70 m²)",
+      "floor": 1,
+      "capacity": 25,
+      "type": "BOOK_STORAGE",
+      "targetComfortScore": 88.0,
+      "description": "Kho sách lưu trữ cánh Tây Tầng 1, kiểm soát độ ẩm < 60%RH chống mốc tài liệu",
+      "boundaryPolygon": [
+        { "x": 0.021, "y": 0.422 },
+        { "x": 0.234, "y": 0.422 },
+        { "x": 0.234, "y": 0.506 },
+        { "x": 0.200, "y": 0.506 },
+        { "x": 0.200, "y": 0.566 },
+        { "x": 0.234, "y": 0.566 },
+        { "x": 0.234, "y": 0.695 },
+        { "x": 0.021, "y": 0.695 }
+      ]
+    },
+    {
+      "code": "ROOM_102",
+      "name": "Kho Sách Tầng 1 - Cánh Đông (264.70 m²)",
+      "floor": 1,
+      "capacity": 25,
+      "type": "BOOK_STORAGE",
+      "targetComfortScore": 88.0,
+      "description": "Kho sách lưu trữ cánh Đông Tầng 1 và khu vực nhập phân loại tài liệu",
+      "boundaryPolygon": [
+        { "x": 0.766, "y": 0.422 },
+        { "x": 0.979, "y": 0.422 },
+        { "x": 0.979, "y": 0.695 },
+        { "x": 0.766, "y": 0.695 },
+        { "x": 0.766, "y": 0.566 },
+        { "x": 0.800, "y": 0.566 },
+        { "x": 0.800, "y": 0.506 },
+        { "x": 0.766, "y": 0.506 }
+      ]
+    },
+    {
+      "code": "TQB_102",
+      "name": "Khu Nhập & Phân Loại Sách Đĩa (367.48 m²)",
+      "floor": 1,
+      "capacity": 45,
+      "type": "BOOK_STORAGE",
+      "targetComfortScore": 86.0,
+      "description": "Khu vực tiếp nhận, biên mục và mã hóa RFID tài liệu Tầng 1 phía Bắc",
+      "boundaryPolygon": [
+        { "x": 0.398, "y": 0.068 },
+        { "x": 0.602, "y": 0.068 },
+        { "x": 0.602, "y": 0.212 },
+        { "x": 0.698, "y": 0.212 },
+        { "x": 0.698, "y": 0.340 },
+        { "x": 0.302, "y": 0.340 },
+        { "x": 0.302, "y": 0.212 },
+        { "x": 0.398, "y": 0.212 }
+      ]
+    },
+    {
+      "code": "ROOM_201",
+      "name": "Phòng Multimedia & Mượn Giáo Trình Tầng 2 (570.57 m²)",
+      "floor": 2,
+      "capacity": 180,
+      "type": "STUDY_ROOM",
+      "targetComfortScore": 86.0,
+      "description": "Phòng đa phương tiện và quầy cho mượn giáo trình cánh Bắc Tầng 2",
+      "boundaryPolygon": [
+        { "x": 0.301, "y": 0.008 },
+        { "x": 0.699, "y": 0.008 },
+        { "x": 0.699, "y": 0.194 },
+        { "x": 0.654, "y": 0.194 },
+        { "x": 0.654, "y": 0.320 },
+        { "x": 0.346, "y": 0.320 },
+        { "x": 0.346, "y": 0.194 },
+        { "x": 0.301, "y": 0.194 }
+      ]
+    },
+    {
+      "code": "TQB_301",
+      "name": "Phòng Đa Phương Tiện Multimedia 301 (570.57 m²)",
+      "floor": 3,
+      "capacity": 200,
+      "type": "STUDY_ROOM",
+      "targetComfortScore": 88.0,
+      "description": "Phòng Multimedia trung tâm Tầng 3 với 4 phân khu bàn đọc và tra cứu CSDL",
+      "boundaryPolygon": [
+        { "x": 0.301, "y": 0.008 },
+        { "x": 0.699, "y": 0.008 },
+        { "x": 0.699, "y": 0.194 },
+        { "x": 0.654, "y": 0.194 },
+        { "x": 0.654, "y": 0.320 },
+        { "x": 0.346, "y": 0.320 },
+        { "x": 0.346, "y": 0.194 },
+        { "x": 0.301, "y": 0.194 }
+      ]
+    },
+    {
+      "code": "TQB_302",
+      "name": "Phòng Đọc Lớn Cánh Tây 302 (301.30 m²)",
+      "floor": 3,
+      "capacity": 120,
+      "type": "STUDY_ROOM",
+      "targetComfortScore": 86.0,
+      "description": "Phòng đọc lớn cánh Tây Tầng 3 kèm kho sách tự chọn",
+      "boundaryPolygon": [
+        { "x": 0.008, "y": 0.401 },
+        { "x": 0.235, "y": 0.401 },
+        { "x": 0.235, "y": 0.506 },
+        { "x": 0.200, "y": 0.506 },
+        { "x": 0.200, "y": 0.566 },
+        { "x": 0.235, "y": 0.566 },
+        { "x": 0.235, "y": 0.692 },
+        { "x": 0.008, "y": 0.692 }
+      ]
+    },
+    {
+      "code": "TQB_303",
+      "name": "Phòng Đọc Lớn Cánh Đông 303 (301.30 m²)",
+      "floor": 3,
+      "capacity": 120,
+      "type": "STUDY_ROOM",
+      "targetComfortScore": 86.0,
+      "description": "Phòng đọc lớn cánh Đông Tầng 3 kèm kho sách mở và quầy mượn",
+      "boundaryPolygon": [
+        { "x": 0.765, "y": 0.401 },
+        { "x": 0.992, "y": 0.401 },
+        { "x": 0.992, "y": 0.692 },
+        { "x": 0.765, "y": 0.692 },
+        { "x": 0.765, "y": 0.566 },
+        { "x": 0.800, "y": 0.566 },
+        { "x": 0.800, "y": 0.506 },
+        { "x": 0.765, "y": 0.506 }
+      ]
+    },
+    {
+      "code": "TQB_306",
+      "name": "Phòng Truyền Thống & Lưu Trữ Quý Hiếm (225.0 m²)",
+      "floor": 3,
+      "capacity": 60,
+      "type": "BOOK_STORAGE",
+      "targetComfortScore": 92.0,
+      "description": "Không gian trưng bày truyền thống và bảo quản ấn phẩm quý hiếm Tầng 3",
+      "boundaryPolygon": [
+        { "x": 0.400, "y": 0.752 },
+        { "x": 0.600, "y": 0.752 },
+        { "x": 0.600, "y": 0.968 },
+        { "x": 0.400, "y": 0.968 }
+      ]
+    },
+    {
+      "code": "TQB_501",
+      "name": "Phòng Đọc Chuyên Ngành Lớn 501 (570.57 m²)",
+      "floor": 5,
+      "capacity": 200,
+      "type": "STUDY_ROOM",
+      "targetComfortScore": 88.0,
+      "description": "Phòng đọc chuyên ngành cho sinh viên cánh Bắc Tầng 5",
+      "boundaryPolygon": [
+        { "x": 0.301, "y": 0.008 },
+        { "x": 0.699, "y": 0.008 },
+        { "x": 0.699, "y": 0.320 },
+        { "x": 0.301, "y": 0.320 }
+      ]
+    },
+    {
+      "code": "TQB_506",
+      "name": "Phòng Thảo Luận Nhóm 506 (37.74 m²)",
+      "floor": 5,
+      "capacity": 14,
+      "type": "STUDY_ROOM",
+      "targetComfortScore": 82.0,
+      "description": "Phòng làm việc theo nhóm nhỏ dọc hành lang Nam Tầng 5",
+      "boundaryPolygon": [
+        { "x": 0.301, "y": 0.756 },
+        { "x": 0.398, "y": 0.756 },
+        { "x": 0.398, "y": 0.838 },
+        { "x": 0.301, "y": 0.838 }
+      ]
+    },
+    {
+      "code": "TQB_508",
+      "name": "Phòng Thảo Luận Nhóm 508 (25.97 m²)",
+      "floor": 5,
+      "capacity": 10,
+      "type": "STUDY_ROOM",
+      "targetComfortScore": 84.0,
+      "description": "Phòng làm việc nhóm 10 chỗ Tầng 5",
+      "boundaryPolygon": [
+        { "x": 0.422, "y": 0.756 },
+        { "x": 0.498, "y": 0.756 },
+        { "x": 0.498, "y": 0.838 },
+        { "x": 0.422, "y": 0.838 }
+      ]
+    },
+    {
+      "code": "TQB_509",
+      "name": "Phòng Thảo Luận Nhóm 509 (41.47 m²)",
+      "floor": 5,
+      "capacity": 16,
+      "type": "STUDY_ROOM",
+      "targetComfortScore": 84.0,
+      "description": "Phòng seminar làm việc nhóm 16 chỗ hướng Nam Tầng 5",
+      "boundaryPolygon": [
+        { "x": 0.402, "y": 0.841 },
+        { "x": 0.498, "y": 0.841 },
+        { "x": 0.498, "y": 0.938 },
+        { "x": 0.402, "y": 0.938 }
+      ]
+    },
+    {
+      "code": "TQB_510",
+      "name": "Phòng Thảo Luận Nhóm 510 (25.97 m²)",
+      "floor": 5,
+      "capacity": 10,
+      "type": "STUDY_ROOM",
+      "targetComfortScore": 84.0,
+      "description": "Phòng làm việc nhóm 10 chỗ gần thang máy trung tâm Tầng 5",
+      "boundaryPolygon": [
+        { "x": 0.502, "y": 0.756 },
+        { "x": 0.578, "y": 0.756 },
+        { "x": 0.578, "y": 0.838 },
+        { "x": 0.502, "y": 0.838 }
+      ]
+    }
+  ],
+  "devices": [
+    {
+      "hardwareId": "ESP32_HALL_001_A",
+      "name": "Sensor Node Cửa Từ Sảnh T1",
+      "zoneId": "ZONE_HALL",
+      "roomCode": "ROOM_001",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.500,
+      "posY": 0.805,
+      "location": "Khu cửa từ kiểm soát & quầy tiếp đón Tầng 1",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_HALL_001_B",
+      "name": "Sensor Node Sảnh Tây T1",
+      "zoneId": "ZONE_HALL",
+      "roomCode": "ROOM_001",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.380,
+      "posY": 0.560,
+      "location": "Sảnh triển lãm sách mới cánh Tây",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_HALL_001_C",
+      "name": "Sensor Node Kiosk OPAC Sảnh Đông",
+      "zoneId": "ZONE_HALL",
+      "roomCode": "ROOM_001",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.620,
+      "posY": 0.560,
+      "location": "Khu máy tính Kiosk tra cứu OPAC cánh Đông",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32S3_ZONE_A_001",
+      "name": "Sensor Node Kho Sách Tây Khu A",
+      "zoneId": "ZONE_A",
+      "roomCode": "ROOM_101",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.115,
+      "posY": 0.485,
+      "location": "Kệ kho lưu trữ Tây Bắc (Khu A)",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_ROOM_101",
+      "name": "Sensor Node Kho Sách Tây Khu B",
+      "zoneId": "ZONE_A",
+      "roomCode": "ROOM_101",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.115,
+      "posY": 0.625,
+      "location": "Kệ kho lưu trữ Tây Nam (Khu B)",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_ROOM_102",
+      "name": "Sensor Node Kho Sách Đông Khu C",
+      "zoneId": "ZONE_B",
+      "roomCode": "ROOM_102",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.885,
+      "posY": 0.485,
+      "location": "Kệ kho lưu trữ Đông Bắc (Khu C)",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_ROOM_102_B",
+      "name": "Sensor Node Kho Sách Đông Khu D",
+      "zoneId": "ZONE_B",
+      "roomCode": "ROOM_102",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.885,
+      "posY": 0.625,
+      "location": "Kệ kho lưu trữ Đông Nam (Khu D)",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_STORAGE_201",
+      "name": "Sensor Node Cửa Sổ Bắc Multimedia T2",
+      "zoneId": "ZONE_C",
+      "roomCode": "ROOM_201",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.500,
+      "posY": 0.075,
+      "location": "Dãy bàn kính cửa sổ Bắc Tầng 2",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_STORAGE_201_B",
+      "name": "Sensor Node Trung Tâm Multimedia T2",
+      "zoneId": "ZONE_C",
+      "roomCode": "ROOM_201",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.500,
+      "posY": 0.175,
+      "location": "Khu máy tính tra cứu trung tâm Tầng 2",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_STORAGE_201_C",
+      "name": "Sensor Node Quầy Mượn T2",
+      "zoneId": "ZONE_C",
+      "roomCode": "ROOM_201",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.500,
+      "posY": 0.275,
+      "location": "Khu gần quầy mượn & cửa ra vào Tầng 2",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_TQB_301_NW",
+      "name": "Sensor Node Cửa Sổ Tây Bắc 301",
+      "zoneId": "ZONE_A",
+      "roomCode": "TQB_301",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.385,
+      "posY": 0.082,
+      "location": "Dãy bàn sát cửa sổ kính Bắc (Tây) P.301",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_TQB_301_NE",
+      "name": "Sensor Node Cửa Sổ Đông Bắc 301",
+      "zoneId": "ZONE_A",
+      "roomCode": "TQB_301",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.615,
+      "posY": 0.082,
+      "location": "Dãy bàn sát cửa sổ kính Bắc (Đông) P.301",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_TQB_301_CTR",
+      "name": "Sensor Node Trung Tâm Multimedia 301",
+      "zoneId": "ZONE_A",
+      "roomCode": "TQB_301",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.500,
+      "posY": 0.165,
+      "location": "Khu bàn máy trạm trung tâm P.301",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_TQB_301_DOOR",
+      "name": "Sensor Node Quầy Mượn 301",
+      "zoneId": "ZONE_A",
+      "roomCode": "TQB_301",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.500,
+      "posY": 0.275,
+      "location": "Khu bàn gần quầy mượn & cửa chính P.301",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_TQB_302_QUIET",
+      "name": "Sensor Node Góc Yên Tĩnh 302",
+      "zoneId": "ZONE_A",
+      "roomCode": "TQB_302",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.068,
+      "posY": 0.465,
+      "location": "Góc tự học yên tĩnh trong cùng P.302",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_TQB_302_WIN",
+      "name": "Sensor Node Cửa Sổ Tây 302",
+      "zoneId": "ZONE_A",
+      "roomCode": "TQB_302",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.068,
+      "posY": 0.625,
+      "location": "Dãy bàn cửa sổ Tây Nam P.302",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_TQB_303_QUIET",
+      "name": "Sensor Node Góc Yên Tĩnh Đông 303",
+      "zoneId": "ZONE_B",
+      "roomCode": "TQB_303",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.930,
+      "posY": 0.465,
+      "location": "Góc tự học yên tĩnh sát cửa sổ Đông P.303",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_TQB_306_ARC",
+      "name": "Sensor Node Tủ Hiện Vật Quý 306",
+      "zoneId": "ZONE_C",
+      "roomCode": "TQB_306",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.500,
+      "posY": 0.820,
+      "location": "Không gian trưng bày hiện vật & ấn phẩm quý P.306",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_TQB_501_NE",
+      "name": "Sensor Node Cửa Sổ Đông Bắc 501",
+      "zoneId": "ZONE_A",
+      "roomCode": "TQB_501",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.615,
+      "posY": 0.080,
+      "location": "Dãy bàn kính Đông Bắc P.501",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_TQB_501_CTR",
+      "name": "Sensor Node Trung Tâm 501",
+      "zoneId": "ZONE_A",
+      "roomCode": "TQB_501",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.500,
+      "posY": 0.215,
+      "location": "Khu bàn đọc trung tâm P.501",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_TQB_506_GRP",
+      "name": "Sensor Node Phòng Nhóm 506",
+      "zoneId": "ZONE_B",
+      "roomCode": "TQB_506",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.350,
+      "posY": 0.797,
+      "location": "Bàn họp nhóm 506 Tầng 5",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_TQB_508_GRP",
+      "name": "Sensor Node Phòng Nhóm 508",
+      "zoneId": "ZONE_B",
+      "roomCode": "TQB_508",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.460,
+      "posY": 0.797,
+      "location": "Bàn thảo luận nhóm nhỏ 508 Tầng 5",
+      "firmwareVersion": "1.2.0"
+    },
+    {
+      "hardwareId": "ESP32_TQB_509_GRP",
+      "name": "Sensor Node Phòng Nhóm 509",
+      "zoneId": "ZONE_B",
+      "roomCode": "TQB_509",
+      "deviceType": "SENSOR_NODE",
+      "posX": 0.450,
+      "posY": 0.890,
+      "location": "Bàn seminar nhóm lớn 509 Tầng 5",
+      "firmwareVersion": "1.2.0"
+    }
+  ]
+}

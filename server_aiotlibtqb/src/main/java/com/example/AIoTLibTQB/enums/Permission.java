@@ -1,0 +1,32 @@
+package com.example.AIoTLibTQB.enums;
+
+public enum Permission {
+
+    READ_SENSOR_DATA,
+
+    READ_SENSOR_DETAIL,
+
+    WRITE_SENSOR_DATA,
+
+    VIEW_ALERTS,
+
+    ACKNOWLEDGE_ALERT,
+
+    MANAGE_ALERT_CONFIG,
+
+    MANAGE_DEVICES,
+
+    VIEW_DEVICE_STATUS,
+
+    MANAGE_ZONES,
+
+    VIEW_ZONE_SUMMARY,
+
+    GENERATE_REPORT,
+
+    VIEW_ANALYTICS,
+
+    MANAGE_USERS,
+
+    MANAGE_ROLES
+}

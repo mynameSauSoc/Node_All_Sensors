@@ -1,0 +1,13 @@
+﻿docs/00-README.md - Mục lục tổng quan, lộ trình đọc theo cấp độ (30 phút, 2 giờ, chuyên sâu) và cẩm nang hướng dẫn khai thác bộ tài liệu kỹ thuật AIoTLibTQB.
+docs/01-overview.md - Bối cảnh bài toán bảo tồn tài liệu quý theo ISO 11799, tối ưu tiện nghi theo ASHRAE 55 và WHO, phạm vi hệ thống và các bên liên quan.
+docs/02-architecture.md - Kiến trúc tổng thể hệ thống, sơ đồ luồng dữ liệu thời gian thực từ ESP32-S3 qua Mosquitto, Spring Boot, MongoDB đến Next.js UI và cơ sở lựa chọn công nghệ.
+docs/03-ingestion-pipeline.md - Đường ống tiếp nhận dữ liệu cảm biến thời gian thực trên Java 21 Virtual Threads, bộ lọc dải vật lý, forward-fill 30s, kẹp timestamp, FSM cảnh báo và Device Watchdog.
+docs/04-lcs-algorithm.md - Thuật toán điểm tiện nghi thư viện LCS theo nguyên lý thùng gỗ Liebig non-linear gating, cấu hình trọng số theo 3 loại phòng, công thức toán học và test case biên.
+docs/05-data-model.md - Thiết kế mô hình dữ liệu MongoDB 8.0, TimeSeries telemetry_records retention 90 ngày, tọa độ không gian 2D và đa giác phòng boundaryPolygon.
+docs/06-security-rbac.md - Kiến trúc an ninh bảo mật JWT HMAC-SHA512, cơ chế xoay vòng Refresh Token, Blacklist TTL trong MongoDB, ma trận 7 vai trò x 14 quyền và phân vùng assignedZones.
+docs/07-api-reference.md - Danh mục đặc tả toàn bộ RESTful API bọc chuẩn ApiResponse<T>, phân nhóm nghiệp vụ, request/response mẫu và từ điển 33 mã lỗi.
+docs/08-frontend.md - Kiến trúc Frontend Next.js 15 App Router, phân định State Zustand vs TanStack React Query, kết nối STOMP Native WebSocket, và bản đồ nhiệt 2D Canvas HiDPI.
+docs/09-firmware-iot.md - Đặc tả IoT Firmware trạm đo ESP32-S3, danh mục 9 thông số cảm biến, chuẩn hóa MQTT JSON payload, chu kỳ phát tin, xác thực BCrypt và bộ giả lập mạch đo.
+docs/10-conventions.md - Quy ước lập trình bắt buộc kèm ví dụ đối chiếu Đúng/Sai về Virtual Threads, TimeSeries Aggregation, Semaphore, tránh synchronized và quản lý Secret.
+docs/11-onboarding-runbook.md - Cẩm nang hướng dẫn cài đặt môi trường, khởi chạy cục bộ từng thành phần hệ thống bằng Docker Compose, Maven, Node.js và xử lý sự cố thường gặp.
+docs/12-glossary.md - Từ điển thuật ngữ kỹ thuật, bảng từ viết tắt và quy chuẩn các đơn vị đo lường trong hệ thống giám sát vi khí hậu & âm học AIoTLibTQB.

@@ -3,19 +3,24 @@
 
 /**
  * @file audio_i2s.h
- * @brief Driver phần cứng I2S DMA & Thuật toán xử lý âm thanh cho Đồ án tốt nghiệp:
- *        1. Micro INMP441 (I2S0 DMA Rx): Thu luồng PCM 24-bit ở 16kHz, lọc khử DC/quạt trần,
- *           tính áp suất âm thanh đỉnh (SPL Peak) và tích phân mức ồn tương đương LAeq (dBA).
- *        2. Mạch giải mã MAX98357A I2S Class-D (I2S1 DMA Tx) + Loa 1W (SPK+/SPK-):
- *           Phát sóng âm thanh cảnh báo trực tiếp ra Loa khi vượt ngưỡng (> 55 dBA).
- *        3. Hỗ trợ chuyển đổi mượt giữa Chế độ Phần cứng Thật và Chế độ Giả lập (Admin Test).
+ * @brief Driver Bus Âm thanh I2S DMA Kép trên ESP32-S3:
+ *        1. Micro INMP441 (I2S0 Rx DMA): SCK=GPIO4, WS=GPIO5, SD=GPIO6.
+ *           Thu âm 24-bit @ 16 kHz, lọc IIR khử DC, tính tích phân LAeq & SPL peak.
+ *        2. Mạch giải mã MAX98357A Class-D + Loa 1W (I2S1 Tx DMA): BCLK=GPIO15, LRC=GPIO16, DIN=GPIO7.
+ *           Phát âm cảnh báo khi độ ồn > 55 dBA.
  */
 
-// Khởi tạo ngoại vi I2S0 (Micro INMP441) và I2S1 (Mạch Loa MAX98357A)
+// Khởi tạo ngoại vi I2S0 Rx (Micro) và I2S1 Tx (Loa)
 void audio_i2s_init(void);
 
-// Đọc & xử lý âm thanh từ phần cứng INMP441 thật (hoặc giả lập khi ở chế độ Admin Test)
+// Đọc và xử lý luồng âm thanh thực tế từ DMA Micro INMP441
+void audio_i2s_read_levels(float *laeq_out, float *spl_peak_out);
+
+// Hàm điều phối xử lý âm thanh (chạy phần cứng thật hoặc chế độ mô phỏng)
+void audio_i2s_process(sensor_data_t *data, bool is_mock);
+
+// Tương thích ngược với tên hàm cũ
 void audio_i2s_mock_process(sensor_data_t *data);
 
-// Phát 1 chuỗi xung âm thanh cảnh báo thật qua bus I2S1 DMA tới mạch MAX98357A + Loa 1W
+// Phát chuỗi âm báo động bíp ~1000Hz ra Loa 1W
 void audio_i2s_play_alert_tone(void);

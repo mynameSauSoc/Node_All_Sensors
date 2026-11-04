@@ -1,145 +1,121 @@
 # SOFTWARE ARCHITECTURE - HỆ THỐNG QUAN TRẮC MÔI TRƯỜNG THƯ VIỆN TẠ QUANG BỬU (TQB SMARTLIB)
 
-> **Single Source of Truth (SSOT) cho Kiến Trúc Phần Mềm & Luồng Dữ Liệu**  
-> Mọi thay đổi về cấu trúc thư mục, thư viện, tác vụ FreeRTOS, luồng MQTT hoặc Schema dữ liệu phải được ghi nhận tại file này.
+> **Single Source of Truth (SSOT) cho Kiến Trúc Phần Mềm, Phân Định Paradigms & Luồng Dữ Liệu**  
+> Tuân thủ nghiêm ngặt quy tắc `.ai-rules`. Phân tách rành mạch giữa:
+> - **Lập trình Cấu trúc (Procedural / Modular Embedded C & FreeRTOS)** trên Firmware ESP32-S3.
+> - **Lập trình Hướng đối tượng (Enterprise OOP / Layered Architecture)** trên Backend Spring Boot 3 & MongoDB 8.0.
+> - **Lập trình Hướng thành phần (Component-Driven / Declarative UI)** trên Frontend React 18 & Vite.
 
 ---
 
-## 1. CẤU TRÚC THƯ MỤC HỆ THỐNG (SYSTEM DIRECTORY STRUCTURE)
+## 1. QUY HOẠCH CẤU TRÚC THƯ MỤC CHUẨN HOÁ (SYSTEM DIRECTORY STRUCTURE)
 
 ```
 d:\ĐỒ ÁN TỐT NGHIỆP\
-├── .ai-rules                               # Luật hành vi AI (tiết kiệm token & chuẩn quy trình)
-├── HARDWARE_MAP.md                         # SSOT phần cứng, sơ đồ chân GPIO, thông số điện áp
-├── SOFTWARE_ARCH.md                        # SSOT kiến trúc phần mềm, luồng dữ liệu & MQTT
-├── KHOI_DONG_SERVER_TQB.bat                # Script 1-click kích hoạt Docker, Firewall, Server & App
-├── MO_APP_TQB_SMARTLIB.bat                 # Script mở giao diện trình duyệt Web & Grafana
-├── server_ip.txt                           # Tệp lưu địa chỉ IP hiện tại của máy chủ
-├── Bao_Cao_*.docx                          # Tài liệu thuyết minh luận văn tốt nghiệp
+├── .ai-rules                                  # Luật hành vi AI (tiết kiệm token & chuẩn quy trình)
+├── HARDWARE_MAP.md                            # SSOT phần cứng, sơ đồ chân GPIO, thông số điện áp
+├── SOFTWARE_ARCH.md                           # SSOT kiến trúc phần mềm, luồng dữ liệu & Hot/Cold DB
+├── README.md                                  # Hướng dẫn tổng quan đồ án tốt nghiệp
 │
-├── d:\esp\Node_All_Sensors\                # SOURCE CODE FIRMWARE ESP32-S3 (ESP-IDF v4.4.8)
-│   ├── .ai-rules                           # Bản sao đồng bộ quy tắc AI
-│   ├── HARDWARE_MAP.md                     # Bản sao đồng bộ phần cứng
-│   ├── SOFTWARE_ARCH.md                    # Bản sao đồng bộ kiến trúc
-│   ├── partitions.csv                      # Bảng phân vùng Flash (nvs, phy, otadata, ota_0, ota_1, storage)
-│   ├── sdkconfig                           # Cấu hình ESP-IDF (USB Serial, no PSRAM, 16MB Flash)
-│   └── main/
-│       ├── app_config.h                    # File cấu hình trung tâm (GPIO pinout, ngưỡng báo động, chu kỳ)
-│       ├── main.c                          # Khởi tạo hệ thống, Wi-Fi Station/AP, quản lý vòng đời tasks
-│       ├── audio_i2s.c / .h                # Driver I2S DMA cho Micro INMP441 & Amply MAX98357A
-│       ├── drv_i2c_sensors.c / .h          # Driver I2C (BH1750, SHT30, SCD40 CO2, OLED SSD1306)
-│       ├── drv_adc_sensors.c / .h          # Driver ADC1 (Bụi Sharp GP2Y10, AFE SO2/NO2/VOC, Pin UPS)
-│       ├── led_alert.c / .h                # Điều khiển 3 LED đơn sắc (GPIO 1 Xanh, 2 Lam, 42 Đỏ)
-│       ├── offline_storage.c / .h          # Ghi & xả dữ liệu nhị phân 64B vào Flash SPIFFS khi mất mạng
-│       ├── ota_remote_cfg.c / .h           # Web Server AP cấu hình Wi-Fi & nâng cấp OTA qua Web
-│       └── mock_sensor.c / .h              # Bộ sinh dữ liệu giả lập cho Admin stress test
+├── 01_HE_THONG_SERVER/                        # HỆ THỐNG MÁY CHỦ MASTER (HƯỚNG ĐỐI TƯỢNG OOP)
+│   ├── Backend_Spring_Boot_Java/              # Mã nguồn D:\AIoTLibTQB (Spring Boot 3.5, Java 21)
+│   │   ├── document/                          # MongoDB Documents (User, Device, Room, TelemetryRecord)
+│   │   ├── repository/                        # Spring Data Mongo Repositories
+│   │   ├── service/                           # Business Logic (ComfortScore, TelegramBot, RBAC)
+│   │   ├── controller/                        # REST API Controllers (JWT Protected)
+│   │   └── configuration/                     # SecurityConfig (CORS, RateLimit, JWT)
+│   ├── Frontend_React_Vite/                   # Mã nguồn D:\IOT-project\frontend (React 18, Tailwind, Zustand)
+│   │   ├── pages/                             # Màn hình (Dashboard, ClassroomDetail, UserManagement)
+│   │   ├── components/                        # Sơ đồ phòng đọc (Digital Twin), Widget cảm biến, Heatmap
+│   │   └── services/                          # Tầng Axios API & WebSocket Client
+│   └── docker-compose.yml                     # Cụm MongoDB 8.0, Mongo Express (8081), Mosquitto (1883)
 │
-└── d:\iot_server\                          # CỤM DOCKER SERVER IOT LOCAL
-    ├── docker-compose.yml                  # Khởi chạy Mosquitto, InfluxDB, Telegraf, Grafana
-    ├── telegraf.conf                       # Cấu hình Telegraf chuyển tiếp MQTT -> InfluxDB
-    ├── grafana_dashboard_*.json            # Mẫu Dashboard Grafana cho Phòng 411 TV Tạ Quang Bửu
-    └── mosquitto/mosquitto.conf            # Cấu hình MQTT Broker (cổng 1883, cho phép anonymous)
+├── 02_FIRMWARE_PHAN_CUNG/                     # MÃ NGUỒN NHÚNG ESP32-S3 (HƯỚNG CẤU TRÚC MODULAR C)
+│   └── Code_Firmware_ESP32_S3/                # Mã nguồn D:\esp\Node_All_Sensors (ESP-IDF v4.4.8)
+│       ├── main/app_config.h                  # Cấu hình chân GPIO, chu kỳ đo, ngưỡng cảnh báo
+│       ├── main/main.c                        # Khởi tạo FreeRTOS tasks, Wi-Fi Station/AP, MQTT
+│       ├── main/audio_i2s.c                   # Driver I2S DMA, thuật toán LAeq, SPL peak, điều khiển 3 LED
+│       ├── main/drv_i2c_sensors.c             # Driver SHT30, BH1750, SCD40 NDIR, OLED SSD1306
+│       ├── main/drv_adc_sensors.c             # Driver ADC1 bụi Sharp GP2Y10, Pin UPS 18650
+│       ├── main/offline_storage.c             # Ring-buffer 64B nhị phân lưu Flash SPIFFS khi mất mạng
+│       └── main/ota_remote_cfg.c              # Web Captive Portal cấu hình Wi-Fi & nạp OTA
+│
+├── 03_CONG_CU_MO_PHONG/                       # BỘ TEST & GIẢ LẬP DỮ LIỆU
+│   └── simulate_dual_servers.py               # Trình sinh dữ liệu vi khí hậu & âm học tự động
+│
+├── 04_TAI_LIEU_BAO_CAO_CHINH_THUC/            # Thuyết minh tốt nghiệp, slide báo cáo, file Word
+└── 05_GOI_BAN_GIAO_VA_LUU_TRU/                # Bản sao lưu backup, tài liệu bàn giao kỹ thuật
 ```
 
 ---
 
-## 2. KIẾN TRÚC FIRMWARE ESP32-S3 (ESP-IDF v4.4.8 & FREERTOS)
+## 2. BẢN CHẤT KIẾN TRÚC FIRMWARE ESP32-S3 (ESP-IDF & FREERTOS)
 
-### A. Danh sách các Tác vụ FreeRTOS (Tasks)
-1. **`audio_loop_task` (Ưu tiên cao, chu kỳ 1s)**:
-   - Đọc mẫu âm thanh từ INMP441 qua I2S0 DMA.
-   - Tính toán mức áp suất âm tương đương $L_{\text{Aeq}}$, âm nền $L_{\text{Aeq,bg}}$, và mức đỉnh $SPL_{\text{peak}}$.
-   - Tự động điều khiển 3 bóng LED đơn sắc (GPIO 1, 2, 42) theo 3 cấp độ:
-     - Xanh lá: $\le 45\text{ dBA}$ (Yên tĩnh)
-     - Xanh dương: $45 - 55\text{ dBA}$ (Nhắc nhở)
-     - Đỏ: $> 55\text{ dBA}$ (Báo động)
-   - Kích hoạt Amply MAX98357A phát âm báo ngắn và bắn cờ cảnh báo tức thời.
-2. **`sensor_task` (Multi-Rate Sampling)**:
-   - Ánh sáng (BH1750): Quét mỗi **5 giây/lần**.
-   - Vi khí hậu & Khí độc (SHT30, SCD40 CO2, VOCs, SO2, NO2): Quét mỗi **10 giây/lần**.
-   - Bụi mịn PM2.5 (Sharp GP2Y10): Quét mỗi **30 giây/lần** (để tối ưu tuổi thọ phát hồng ngoại).
-3. **`publisher_task` (Chu kỳ 10s AC / 30s UPS)**:
-   - Đóng gói toàn bộ chỉ số thành JSON chuẩn.
-   - Gửi lên MQTT Broker topic `library/p411/node_all_sensors/telemetry`.
-   - Nếu mất kết nối Wi-Fi: Tự động gọi `offline_storage_write()`.
-   - Khi có kết nối lại: Tự động replay theo batch (5 bản ghi/chu kỳ) để xả kho dữ liệu mà không nghẽn mạng.
-4. **`display_task` (SSD1306 OLED 128x64)**:
-   - Hiển thị địa chỉ IP, trạng thái Wi-Fi/MQTT, trạng thái các cảm biến và mã QR truy cập trang quản trị.
-5. **`web_ota_task` & Captive Portal**:
-   - Khi chưa có cấu hình mạng: Tự động phát AP `TQB_NODE_SETUP` tại `192.168.4.1` để thủ thư nhập Wi-Fi.
-   - Hỗ trợ nạp firmware từ xa (OTA Update) qua giao diện Web.
+### A. Code nhúng này có áp dụng FreeRTOS không?
+**CÓ — Áp dụng 100% làm hạt nhân điều phối thời gian thực**.
+1. **Đa tác vụ tiền định (Preemptive Multitasking)**:
+   - `audio_loop_task` (Priority: High, 1s): Thu mẫu âm thanh I2S DMA liên tục, tính $L_{\text{Aeq}}$ và $SPL_{\text{peak}}$, đổi màu 3 LED (Xanh $\le 45$, Lam $45-55$, Đỏ $> 55\text{ dBA}$).
+   - `sensor_task` (Priority: Medium): Multi-rate sampling (Lux 5s, SHT30/CO2 10s, Bụi 30s).
+   - `publisher_task` (Priority: Normal): Đóng gói Compact JSON, đẩy MQTT `devices/{id}/telemetry`.
+   - `display_task` (Priority: Low): Hiển thị màn hình OLED SSD1306.
+   - `web_ota_task` (Priority: Low): Phát AP Wi-Fi và cập nhật firmware qua Web.
+2. **Kỹ thuật Ghim Lõi Kép (Dual-Core SMP Pinning - `xTaskCreatePinnedToCore`)**:
+   - **Core 0 (Protocol Core)**: Xử lý ngăn xếp mạng Wi-Fi, LWIP TCP/IP, MQTT Client, OTA.
+   - **Core 1 (Application & DSP Core)**: Xử lý lấy mẫu âm thanh I2S DMA, giải thuật DSP và đọc I2C/ADC. Giúp quá trình tính toán âm học không bị gián đoạn khi truyền sóng Wi-Fi.
+3. **Đồng bộ liên tác vụ (Queues & Mutexes)**:
+   - `QueueHandle_t`: Chuyển dữ liệu đo từ `sensor_task` sang `publisher_task`.
+   - `SemaphoreHandle_t` (I2C Mutex): Bảo vệ bus I2C tránh xung đột giữa 4 thiết bị slave (BH1750, SHT30, SCD40, SSD1306).
 
----
-
-## 3. CƠ CHẾ BẢO VỆ OFFLINE (FAULT TOLERANCE)
-- **Cấu trúc bản ghi nhị phân (`offline_record_64b_t`)**: 64 bytes/bản ghi đóng gói chặt chẽ (`__attribute__((packed))`).
-- **Dung lượng lưu trữ**: Phân vùng SPIFFS 1MB chứa được **~14.680 bản ghi** (tương đương hơn **40 giờ lưu trữ liên tục** khi mất toàn bộ điện lưới và internet).
-- **Cơ chế phục hồi (Self-Healing Replay)**: Khi có lại kết nối, hệ thống xả dữ liệu cũ song song với dữ liệu thực thời gian thực theo cơ chế hàng đợi FIFO.
+### B. Các Kỹ thuật Phần Cứng & Thuật Toán Chuyên Sâu Khác Được Áp Dụng:
+1. **DMA (Direct Memory Access) cho Audio I2S**: Micro số INMP441 truyền dữ liệu trực tiếp vào SRAM qua bộ đệm kép (ping-pong DMA buffer) mà không tiêu tốn chu kỳ CPU.
+2. **Thuật toán Âm học DSP $L_{\text{Aeq}}$ (IEC 61672)**:
+   $$L_{\text{Aeq}} = 10 \log_{10} \left( \frac{1}{N} \sum_{i=1}^{N} 10^{0.1 \cdot L_i} \right)$$
+   Tích lũy năng lượng âm học liên tục trong cửa sổ 1 giây để lọc các tiếng va đập tức thời.
+3. **Bộ đệm Nhị Phân Flash SPIFFS (Binary Packed Ring-Buffer)**:
+   - Cấu trúc 64 bytes (`__attribute__((packed))`).
+   - Lưu trữ được hơn **14.680 bản ghi** (hơn 40 giờ) khi đứt mạng, tự động xả dồn FIFO khi có mạng lại.
+4. **Cơ chế Cắm-Và-Chạy Không Treo Bus (Non-blocking I2C Auto-Recovery)**:
+   - Tự động thăm dò I2C ACK khi khởi động. Nếu bất kỳ cảm biến nào chưa cắm, hệ thống tự động bypass mà không crash bus.
+5. **Kỹ thuật Báo Cáo Theo Ngoại Lệ (Report by Exception & Deadband Filtering)**:
+   - Khi ổn định: Gửi định kỳ 15s - 30s.
+   - Khi có đột biến ($\Delta \text{Noise} > 6\text{ dBA}$ hoặc nồng độ khí tăng vọt): Kích hoạt ngắt gửi ngay lập tức (<100ms).
 
 ---
 
-## 4. LUỒNG DỮ LIỆU HỆ THỐNG (DATA FLOW PIPELINE)
+## 3. KIẾN TRÚC DỮ LIỆU LAI HOT / COLD TRÊN MONGODB 8.0 (LOẠI BỎ INFLUXDB)
+
+Hệ thống chỉ sử dụng **MongoDB 8.0** kết hợp mô hình lưu trữ lai 2 tầng:
 
 ```
-[ ESP32-S3 Sensor Node ]
-       │
-       ├── (Luồng Nóng <100ms: Vượt ngưỡng ồn >55dBA / CO2 >1000ppm)
-       │    └── MQTT: library/p411/node_all_sensors/alert
-       │         └── Python Coordinator Server (Port 8090)
-       │              └── Bot Telegram Thủ thư (@TQB_SmartLib_Bot)
-       │
-       └── (Luồng Lạnh 10s: Chu kỳ đo định kỳ)
-            └── MQTT: library/p411/node_all_sensors/telemetry
-                 └── Telegraf (Port 1883)
-                      └── InfluxDB 2.7 (Port 8086, Org: hust_library, Bucket: sensor_data)
-                           └── Grafana 10.2 (Port 3000 Dashboard)
+[ MQTT Message (Telemetry) ]
+           │
+           ▼
+[ MqttMessageDispatcherService ]
+           │
+           ├──► [ HOT BUCKET: TimeSeries "telemetry_records" ]
+           │    - Granularity: SECONDS (Bucketed & Columnar Snappy Compressed)
+           │    - Tự động hủy sau 90 ngày: @Indexed(expireAfterSeconds = 7776000)
+           │    - Phục vụ Heatmap & Biểu đồ thời gian thực 24h
+           │
+           ├──► [ COLD ARCHIVE: "telemetry_hourly_rollup" ]
+           │    - Scheduled Task tổng hợp Min/Max/Avg/P95 mỗi giờ
+           │    - Lưu trữ lịch sử 2 - 5 năm phục vụ nghiên cứu & TCVN 8681
+           │    - Tiết kiệm 97% dung lượng đĩa
+           │
+           └──► [ TELEGRAM ALERT ENGINE: TelegramNotificationService ]
+                - Cảnh báo âm thanh vượt 55 dBA
+                - Cảnh báo ẩm mốc sách TCVN 8681 (RH > 70%)
+                - Bắn tin nhắn trực tiếp đến Telegram Thủ thư (@TQB_SmartLib_Bot)
 ```
 
 ---
 
-## 5. QUY ƯỚC MQTT TOPICS & JSON SCHEMA
+## 4. MA TRẬN PHÂN QUYỀN RBAC (5 VAI TRÒ ENTERPRISE)
 
-### A. Luồng Lạnh (Telemetry): `library/p411/node_all_sensors/telemetry`
-```json
-{
-  "node_id": "TQB_P411_NODE_01",
-  "laeq_db": 42.5,
-  "laeq_bg_db": 39.8,
-  "spl_peak_db": 48.2,
-  "temp": 24.6,
-  "rh": 58.2,
-  "lux": 420.0,
-  "co2_ppm": 650,
-  "pm25": 18.5,
-  "so2_ppb": 2.1,
-  "no2_ppb": 3.4,
-  "voc_ppb": 85.0,
-  "power_mode": 1,
-  "battery_pct": 100,
-  "offline_cached": 0,
-  "status": "GREEN_NORMAL"
-}
-```
-
-### B. Luồng Nóng (Cảnh báo vượt ngưỡng): `library/p411/node_all_sensors/alert`
-```json
-{
-  "node_id": "TQB_P411_NODE_01",
-  "alert_type": "NOISE_EXCEEDED",
-  "level": "RED_ALERT",
-  "laeq_db": 62.4,
-  "threshold_db": 55.0,
-  "message": "⚠️ Phát hiện tiếng ồn vượt ngưỡng tại Bàn 01 (62.4 dBA > 55.0 dBA)! Đã phát âm báo nhắc nhở.",
-  "timestamp": 1729780000
-}
-```
-
-### C. Luồng Điều Khiển Admin (Command): `library/p411/node_all_sensors/cmd`
-```json
-{
-  "cmd": "SET_MODE",
-  "mock_mode": 0,
-  "role": 4,
-  "reset_offline": false
-}
-```
+| Role | Màn hình truy cập | Quyền hạn trên Mặt bằng (Digital Twin) | Cảnh báo Telegram |
+| :--- | :--- | :--- | :---: |
+| **`ADMIN`** | Toàn bộ Dashboard, User, Role, Sơ đồ phòng | Toàn quyền kéo-thả vị trí Node (`posX, posY`), sửa bàn/kệ sách/cửa | Có (Mất kết nối Node, lỗi hệ thống) |
+| **`LIBRARIAN`** | Danh sách phòng, Heatmap, Xuất báo cáo TCVN | Xem vị trí node, điều chỉnh ngưỡng cảnh báo tiếng ồn/ẩm mốc | **Có (Tiếng ồn >55dBA, ẩm mốc sách >70%)** |
+| **`MAINTENANCE`**| Trạng thái phần cứng, Pin UPS, RSSI Wi-Fi | Xem vị trí node để đến bảo trì, xác nhận (Acknowledge) sự cố | Có (Node offline, pin yếu, cảm biến lỗi) |
+| **`VIEWER`** | Màn hình công cộng sảnh thư viện | Xem đèn Xanh/Lam/Đỏ mức độ yên tĩnh của các phòng | Không |
+| **`DEVICE`** | Kênh MQTT Telemetry | Chỉ được phép ghi số liệu đo đạc (Write Only) | Không |

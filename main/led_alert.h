@@ -3,11 +3,13 @@
 
 /**
  * @file led_alert.h
- * @brief Giao diện module điều khiển 3 đèn LED cảnh báo mức độ tiếng ồn tại chỗ.
+ * @brief Điều khiển 3 Đèn LED Đơn Sắc Rời trên ESP32-S3 (Active HIGH):
+ *        - GPIO 1  : G_LED (Xanh lá - An toàn, LAeq <= 45 dBA)
+ *        - GPIO 2  : B_LED (Xanh dương - Nhắc nhở, 45 < LAeq <= 55 dBA)
+ *        - GPIO 42 : R_LED (Đỏ - Báo động, LAeq > 55 dBA hoặc ô nhiễm cao)
  */
 
-// Khởi tạo các chân GPIO điều khiển 3 đèn LED (Xanh lá, Xanh dương, Đỏ)
 void led_alert_init(void);
 
-// Đánh giá ngưỡng ồn LAeq (dBA), bật đèn LED tương ứng và xuất chuỗi trạng thái vào status_out
+// Cập nhật trạng thái đèn LED theo độ ồn LAeq và xuất mã trạng thái
 void led_alert_set_state(float laeq, char *status_out);

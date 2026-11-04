@@ -1,0 +1,14 @@
+package com.example.AIoTLibTQB.document;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Point2D {
+    Double x;
+    Double y;
+}

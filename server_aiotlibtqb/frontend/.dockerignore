@@ -1,0 +1,17 @@
+node_modules
+.next
+out
+dist
+coverage
+.vitest
+*.tsbuildinfo
+.git
+.gitignore
+*.md
+.env
+.env.*
+!.env.example
+*.secret
+*.pem
+*.key
+*.log

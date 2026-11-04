@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: AIoTLibTQB-test
+  profiles:
+    active: test
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/aiot_identity_test_db
+      auto-index-creation: false
+
+jwt:
+  secret-key: ${JWT_SECRET:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+  expiration-hours: 1
+  refreshable-hours: 24
+  issuer: AIoTLibTQB.test
+
+cors:
+  allowed-origins: http://localhost:3000
+
+mqtt:
+  broker-url: tcp://localhost:1883
+  client-id: aiot_backend_test
+  username: aiot_backend
+  password: ""
+  default-telemetry-topic: devices/+/telemetry
+  default-status-topic: devices/+/status
+
+app:
+  security:
+    initial-admin-password: ""
